@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'ipaddr'
+
 class NonWorkingDaysController < ApplicationController
   before_action :require_admin, except: [:api_days]
   before_action :require_api_access, only: [:api_days]
@@ -130,8 +132,7 @@ class NonWorkingDaysController < ApplicationController
   # GET /non_working_days/holidays/fetch?year=2026
   def fetch_holidays
     @year          = (params[:year] || Date.today.year + 1).to_i
-    @nager_base    = Setting.plugin_redmine_non_working_days['nager_api_base'] ||
-                     'https://date.nager.at'
+    @nager_base    = nager_api_base
     @countries     = fetch_available_countries(@nager_base)
     @country_code  = params[:country_code] || 'JP'
     # 既存チェックはフォーム送信後（import_holidays）で行う
@@ -141,8 +142,7 @@ class NonWorkingDaysController < ApplicationController
   def import_holidays
     year         = params[:year].to_i
     country_code = params[:country_code].to_s.upcase
-    nager_base   = Setting.plugin_redmine_non_working_days['nager_api_base'] ||
-                   'https://date.nager.at'
+    nager_base   = nager_api_base
 
     holidays = fetch_holidays_from_api(nager_base, year, country_code)
 
@@ -195,6 +195,39 @@ class NonWorkingDaysController < ApplicationController
   end
 
   private
+
+  DEFAULT_NAGER_API_BASE = 'https://date.nager.at'
+  # ホスト名はラベルをドットで連結した形式のみ許可（FQDN以外の指定を弾く簡易チェック）
+  NAGER_API_HOST_PATTERN = /\A[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)+\z/
+  # SSRF対策：loopback / private / link-local（クラウドのメタデータエンドポイント169.254.169.254等を含む）への直接指定を拒否
+  PRIVATE_IP_RANGES = %w[
+    127.0.0.0/8 10.0.0.0/8 172.16.0.0/12 192.168.0.0/16 169.254.0.0/16
+    ::1/128 fc00::/7 fe80::/10
+  ].map { |range| IPAddr.new(range) }.freeze
+
+  # 設定値はプラグイン設定画面から管理者のみ変更可能だが、
+  # 公開配布物として URI に渡す前に scheme / ホスト名形式 / IPアドレスを検証し、SSRF の踏み台化を防ぐ
+  def nager_api_base
+    raw = Setting.plugin_redmine_non_working_days['nager_api_base'].to_s.strip
+    return DEFAULT_NAGER_API_BASE if raw.blank?
+
+    uri  = URI.parse(raw)
+    host = uri.host.to_s
+    return DEFAULT_NAGER_API_BASE unless %w[http https].include?(uri.scheme)
+    return DEFAULT_NAGER_API_BASE unless host.match?(NAGER_API_HOST_PATTERN)
+    return DEFAULT_NAGER_API_BASE if private_ip_literal?(host)
+
+    raw
+  rescue URI::InvalidURIError
+    DEFAULT_NAGER_API_BASE
+  end
+
+  def private_ip_literal?(host)
+    addr = IPAddr.new(host)
+    PRIVATE_IP_RANGES.any? { |range| range.include?(addr) }
+  rescue IPAddr::Error
+    false # ホスト名（IPアドレスでない）の場合はここでは判定しない
+  end
 
   def bulk_ids
     Array(params[:ids]).map(&:to_i).reject(&:zero?)

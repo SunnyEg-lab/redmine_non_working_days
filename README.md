@@ -59,6 +59,8 @@ Go to **Administration → Plugins → Redmine Non Working Days** to configure:
 - **Nager.Date API Base URL** — the base URL used to fetch public holiday data (defaults to `https://date.nager.at`)
 - **Delete All Non-Working Day Settings** — a one-click option (with confirmation) to remove all holidays, fixed dates, and recurring rules registered by this plugin; Redmine's native day-off settings (Administration → Settings → Issue tracking) are not affected
 
+> **Cache note:** This plugin uses `Rails.cache` to cache non-working day data for performance, and invalidates it whenever entries or rules are changed through the plugin's screens. With the default `:memory_store`, each application process/worker holds its own cache, so in a multi-process deployment (e.g. Passenger/Puma with multiple workers, multiple app servers) a change made on one process may not be reflected immediately on others. If you run Redmine with multiple processes, configure a shared cache store such as `:file_store` or `:mem_cache_store` (e.g. in `config/environments/production.rb`).
+
 ## REST API
 
 ```
@@ -72,6 +74,8 @@ GET /non_working_days/api/days.json
 | `kind` | optional | Filter by kind, comma-separated | `holiday,custom_fixed` |
 
 Authenticate with Redmine's standard REST API key, either via the `X-Redmine-API-Key` header or a `key` query parameter. The REST API must be enabled in **Administration → Settings → API**.
+
+> **Access note:** Unlike the plugin's admin screens, this endpoint is available to **any logged-in Redmine user** (not administrators only) — anyone with a valid account and API key can query it with their own key. There is no per-project or per-role permission gate. If you need to restrict access further, consider fronting the endpoint with a reverse-proxy rule or requesting a dedicated permission in an Issue.
 
 ## License
 
