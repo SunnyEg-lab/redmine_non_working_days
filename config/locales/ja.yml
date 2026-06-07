@@ -1,0 +1,109 @@
+ja:
+  plugin_non_working_days:
+    name: "非稼働日管理"
+    description: "祝日・カスタム休日・定期ルールによる非稼働日の管理"
+
+  label_non_working_days: "非稼働日管理"
+  label_non_working_days_calendar: "非稼働日カレンダー"
+  label_non_working_day_entries: "個別指定"
+  label_non_working_day_rules: "定期ルール"
+  label_non_working_day_list: "一覧"
+  label_non_working_day_kind_holiday: "祝日"
+  label_non_working_day_kind_custom_fixed: "個別設定"
+  label_non_working_day_kind_custom_recurring: "定期ルール"
+  label_non_working_day_kind_standard: "Redmine標準休業日"
+  label_non_working_day_date: "日付"
+  label_non_working_day_title: "タイトル"
+  label_non_working_day_kind: "種別"
+  label_non_working_day_country_code: "国コード"
+  label_non_working_day_country_code_custom: "Custom"
+  label_non_working_day_start_date: "開始日"
+  label_non_working_day_end_date: "終了日"
+  label_non_working_day_rule_start_date: "繰り返し開始日"
+  label_non_working_day_rule_end_date: "繰り返し終了日"
+  label_non_working_day_rule_type: "ルール種別"
+  label_non_working_day_rule_params: "ルール設定"
+  label_non_working_day_day_unit: "日"
+  label_non_working_day_no_limit: "制限なし"
+  label_non_working_day_fetch_holidays: "祝日取得"
+  label_non_working_day_fetch_year: "取得年"
+  label_non_working_day_fetch_country: "国"
+  label_non_working_day_add_entry: "個別設定を追加"
+  label_non_working_day_add_rule: "定期ルールを追加"
+  label_non_working_day_prev_year: "◀ 前年"
+  label_non_working_day_next_year: "次年 ▶"
+  label_non_working_day_prev_month: "◀ 前月"
+  label_non_working_day_next_month: "次月 ▶"
+  label_non_working_day_this_year: "今年"
+  label_non_working_day_this_month: "今月"
+  label_non_working_day_legend: "凡例"
+
+  label_rule_type_monthly_day: "毎月指定日"
+  label_rule_type_monthly_last: "毎月末日"
+  label_rule_type_monthly_nth_weekday: "毎月第X週Y曜日"
+  label_rule_type_biweekly: "隔週Y曜日"
+
+  label_nth_1: "第1"
+  label_nth_2: "第2"
+  label_nth_3: "第3"
+  label_nth_4: "第4"
+  label_nth_5: "第5"
+
+  label_weekday_0: "日"
+  label_weekday_1: "月"
+  label_weekday_2: "火"
+  label_weekday_3: "水"
+  label_weekday_4: "木"
+  label_weekday_5: "金"
+  label_weekday_6: "土"
+
+  notice_non_working_day_entry_created: "非稼働日を登録しました。"
+  notice_non_working_day_entry_deleted: "非稼働日を削除しました。"
+  notice_non_working_day_rule_created: "定期ルールを登録しました。"
+  notice_non_working_day_rule_deleted: "定期ルールを削除しました。"
+  notice_non_working_day_holidays_imported: "%{year}年 %{country} の祝日 %{count} 件を取り込みました。"
+
+  error_non_working_day_invalid_params: "パラメータが不正です。"
+  error_non_working_day_range_too_large: "取得範囲が広すぎます（最大50年）。"
+  error_non_working_day_holidays_fetch_failed: "祝日データの取得に失敗しました。"
+
+  warning_non_working_day_holidays_overwrite: "%{year}年 %{country} の祝日データが既に登録されています。上書きしますか？"
+  hint_non_working_day_fetch_fallback_html: "取得できない場合は %{link} から手動登録できます。"
+  warning_non_working_day_holidays_overwrite_generic: "指定した年の祝日データが既に登録されている場合、全件削除して置き換えます。"
+
+  label_non_working_day_list_title: "%{year}年の非稼働日一覧"
+  label_non_working_day_count_days: "日"
+  label_non_working_day_count_rules: "件"
+  button_non_working_day_fetch: "取得して登録"
+  button_non_working_day_delete: "削除"
+  label_non_working_day_standard_popup: "管理 >> 設定 >> チケットトラッキング の「休業日」で設定してください。"
+
+  activerecord:
+    models:
+      non_working_day_entry: "非稼働日"
+      non_working_day_rule: "定期ルール"
+    attributes:
+      non_working_day_entry:
+        date: "日付"
+        title: "タイトル"
+        kind: "種別"
+        country_code: "国コード"
+      non_working_day_rule:
+        title: "タイトル"
+        rule_type: "ルール種別"
+        rule_params: "ルール設定"
+        start_date: "開始日"
+        end_date: "終了日"
+    errors:
+      models:
+        non_working_day_rule:
+          attributes:
+            end_date:
+              greater_than_start_date: "は開始日より後の日付にしてください。"
+            rule_params:
+              days_required: "（対象日）を1つ以上指定してください。"
+              days_out_of_range: "（対象日）は1〜31の範囲で指定してください。"
+              nth_required: "（第何週）は1〜5の範囲で指定してください。"
+              weekday_required: "（曜日）を指定してください。"
+            start_date:
+              required_for_biweekly: "は隔週ルールの場合は必須です。"

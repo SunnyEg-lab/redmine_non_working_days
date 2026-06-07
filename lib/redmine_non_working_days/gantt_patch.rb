@@ -1,20 +1,16 @@
-Rails.logger.info "[GANTT PATCH] gantt_patch.rb loaded"
-
-require_dependency 'redmine/helpers/gantt'
+# frozen_string_literal: true
 
 module RedmineNonWorkingDays
   module GanttPatch
-    include RedmineNonWorkingDays::NonWorkingDayHelper
+    include RedmineNonWorkingDays::GanttHelper
 
     # ============================================================
-    # 【Redmine本体向けパッチ】
-    # 画像ガント（HTML側）の生成
+    # 画像ガント（PNG/PDF）の生成
     # 元の to_image をほぼそのままコピーし、
     # 「Days details」内の non_working_week_days 判定だけ
-    # non_working_day? に差し替えている
+    # non_working_day?（祝日・個別設定・定期ルールを含む）に差し替えている
     # ============================================================
     def to_image(format='PNG')
-      Rails.logger.info "[GANTT PATCH] to_image called"
       date_to = (@date_from >> @months) - 1
       show_weeks = @zoom > 1
       show_days = @zoom > 2
@@ -103,13 +99,13 @@ module RedmineNonWorkingDays
             week_f = week_f + 7
           end
         end
-        # Days details (week-end in grey)
+        # Days details (non-working days in grey)
         if show_days
           left = subject_width
           height = g_height + header_height - 1
           (@date_from..date_to).each do |g_date|
             width =  zoom
-            # ★ ここだけ差し替え：週末判定 → 非稼働日判定（祝日含む）
+            # ★ ここだけ差し替え：週末判定 → 非稼働日判定（祝日・個別設定・定期ルールを含む）
             gc.fill(non_working_day?(g_date) ? '#eee' : 'white')
             gc.stroke('#ddd')
             gc.strokewidth(1)
@@ -149,31 +145,12 @@ module RedmineNonWorkingDays
     ensure
       img.destroy! if img
     end if Object.const_defined?(:MiniMagick)
-  end
 
-  # ============================================================
-  # ここから下は EasyGantt 向けの設定
-  # Redmine 本体のガント機能とは完全に独立して動く
-  # ============================================================
+    # EasyGantt 等の JS 連携用：表示期間内の非稼働日を YYYY-MM-DD 文字列で返す
+    def non_working_dates_in_range
+      return [] unless date_from && date_to
 
-  Rails.logger.info "[GANTT PATCH] EasyGantt patch loaded"
-
-  Rails.application.config.to_prepare do
-    # EasyGantt がインストールされていない場合は何もしない
-    unless Redmine::Plugin.installed?(:easy_gantt)
-      Rails.logger.info "[GANTT PATCH] EasyGantt not installed, skipping JS patch"
-      next
+      (date_from..date_to).select { |d| non_working_day?(d) }.map(&:to_s)
     end
-
-    Rails.logger.info "[GANTT PATCH] EasyGantt detected, enabling JS patch"
-
-    # EasyGantt 用 JS を assets に登録
-    # （app/assets/javascripts/non_working_days.js を読み込ませる）
-    Rails.application.config.assets.precompile += %w[
-      non_working_days.js
-    ]
   end
 end
-
-# Redmine 本体の GanttController にパッチ適用
-GanttsController.prepend RedmineNonWorkingDays::GanttPatch

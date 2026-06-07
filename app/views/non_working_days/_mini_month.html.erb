@@ -1,0 +1,39 @@
+<%# 年カレンダー用の小さな月グリッド %>
+<% first_day = Date.new(year, month, 1) %>
+<% last_day  = first_day.end_of_month %>
+<% start_wday = first_day.cwday % 7 %><%# 0=Sun %>
+
+<table class="nwd-mini-table">
+  <thead>
+    <tr>
+      <% (0..6).each do |wday| %>
+        <th><%= l("label_weekday_#{wday}") %></th>
+      <% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <% week = [] %>
+    <% start_wday.times { week << nil } %>
+    <% (first_day..last_day).each do |date| %>
+      <% week << date %>
+      <% if week.size == 7 %>
+        <tr>
+          <% week.each do |d| %>
+            <% css = nwd_day_css(d, nwd_set, non_working_week_days) if d %>
+            <td class="<%= css %>"><%= d&.day %></td>
+          <% end %>
+        </tr>
+        <% week = [] %>
+      <% end %>
+    <% end %>
+    <% unless week.empty? %>
+      <% week.fill(nil, week.size..6) %>
+      <tr>
+        <% week.each do |d| %>
+          <% css = d ? nwd_day_css(d, nwd_set, non_working_week_days) : '' %>
+          <td class="<%= css %>"><%= d&.day %></td>
+        <% end %>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

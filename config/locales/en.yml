@@ -1,0 +1,109 @@
+en:
+  plugin_non_working_days:
+    name: "Non Working Days"
+    description: "Manage non-working days by public holidays, custom dates, and recurring rules"
+
+  label_non_working_days: "Non Working Days"
+  label_non_working_days_calendar: "Non Working Days Calendar"
+  label_non_working_day_entries: "Fixed Dates"
+  label_non_working_day_rules: "Recurring Rules"
+  label_non_working_day_list: "List"
+  label_non_working_day_kind_holiday: "Public Holiday"
+  label_non_working_day_kind_custom_fixed: "Fixed Date"
+  label_non_working_day_kind_custom_recurring: "Recurring Rule"
+  label_non_working_day_kind_standard: "Redmine Standard Day Off"
+  label_non_working_day_date: "Date"
+  label_non_working_day_title: "Title"
+  label_non_working_day_kind: "Kind"
+  label_non_working_day_country_code: "Country Code"
+  label_non_working_day_country_code_custom: "Custom"
+  label_non_working_day_start_date: "Start Date"
+  label_non_working_day_end_date: "End Date"
+  label_non_working_day_rule_start_date: "Repeat Start Date"
+  label_non_working_day_rule_end_date: "Repeat End Date"
+  label_non_working_day_rule_type: "Rule Type"
+  label_non_working_day_rule_params: "Rule Settings"
+  label_non_working_day_day_unit: ""
+  label_non_working_day_no_limit: "No limit"
+  label_non_working_day_fetch_holidays: "Fetch Holidays"
+  label_non_working_day_fetch_year: "Year"
+  label_non_working_day_fetch_country: "Country"
+  label_non_working_day_add_entry: "Add Fixed Date"
+  label_non_working_day_add_rule: "Add Recurring Rule"
+  label_non_working_day_prev_year: "◀ Prev Year"
+  label_non_working_day_next_year: "Next Year ▶"
+  label_non_working_day_prev_month: "◀ Prev Month"
+  label_non_working_day_next_month: "Next Month ▶"
+  label_non_working_day_this_year: "This Year"
+  label_non_working_day_this_month: "This Month"
+  label_non_working_day_legend: "Legend"
+
+  label_rule_type_monthly_day: "Monthly on specified day(s)"
+  label_rule_type_monthly_last: "Last day of month"
+  label_rule_type_monthly_nth_weekday: "Monthly Xth week, weekday Y"
+  label_rule_type_biweekly: "Biweekly, weekday Y"
+
+  label_nth_1: "1st"
+  label_nth_2: "2nd"
+  label_nth_3: "3rd"
+  label_nth_4: "4th"
+  label_nth_5: "5th"
+
+  label_weekday_0: "Sun"
+  label_weekday_1: "Mon"
+  label_weekday_2: "Tue"
+  label_weekday_3: "Wed"
+  label_weekday_4: "Thu"
+  label_weekday_5: "Fri"
+  label_weekday_6: "Sat"
+
+  notice_non_working_day_entry_created: "Non-working day was successfully created."
+  notice_non_working_day_entry_deleted: "Non-working day was successfully deleted."
+  notice_non_working_day_rule_created: "Recurring rule was successfully created."
+  notice_non_working_day_rule_deleted: "Recurring rule was successfully deleted."
+  notice_non_working_day_holidays_imported: "Imported %{count} public holidays for %{year} (%{country})."
+
+  error_non_working_day_invalid_params: "Invalid parameters."
+  error_non_working_day_range_too_large: "Date range is too large (max 50 years)."
+  error_non_working_day_holidays_fetch_failed: "Failed to fetch holiday data."
+
+  warning_non_working_day_holidays_overwrite: "Holiday data for %{year} (%{country}) already exists and will be replaced. Continue?"
+  hint_non_working_day_fetch_fallback_html: "If fetch fails, you can manually register from %{link}."
+  warning_non_working_day_holidays_overwrite_generic: "If holiday data already exists for the selected year, it will be deleted and replaced."
+
+  label_non_working_day_list_title: "Non-Working Days in %{year}"
+  label_non_working_day_count_days: " days"
+  label_non_working_day_count_rules: " rules"
+  button_non_working_day_fetch: "Fetch and Import"
+  button_non_working_day_delete: "Delete"
+  label_non_working_day_standard_popup: "Configure at Administration >> Settings >> Issue tracking >> Non-working days"
+
+  activerecord:
+    models:
+      non_working_day_entry: "Non Working Day"
+      non_working_day_rule: "Recurring Rule"
+    attributes:
+      non_working_day_entry:
+        date: "Date"
+        title: "Title"
+        kind: "Kind"
+        country_code: "Country Code"
+      non_working_day_rule:
+        title: "Title"
+        rule_type: "Rule Type"
+        rule_params: "Rule Settings"
+        start_date: "Start Date"
+        end_date: "End Date"
+    errors:
+      models:
+        non_working_day_rule:
+          attributes:
+            end_date:
+              greater_than_start_date: "must be after start date."
+            rule_params:
+              days_required: "(days) must have at least one value."
+              days_out_of_range: "(days) must be between 1 and 31."
+              nth_required: "(nth) must be between 1 and 5."
+              weekday_required: "(weekday) is required."
+            start_date:
+              required_for_biweekly: "is required for biweekly rules."

@@ -1,0 +1,229 @@
+<% html_title l(:label_non_working_day_add_rule) %>
+<style>
+  .nwd-row-hidden {
+    display: none !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+</style>
+<%= render 'breadcrumb', current_page_title: l(:label_non_working_day_add_rule) %>
+<h2><%= l(:label_non_working_day_add_rule) %></h2>
+
+<%= form_with model: @rule, url: non_working_day_rules_path, local: true do |f| %>
+  <%= render partial: 'shared/error_messages', locals: { objects: [@rule] } if @rule.errors.any? %>
+
+  <div class="box tabular">
+    <p>
+      <%= f.label :title, l(:label_non_working_day_title) %>
+      <%= f.text_field :title, required: true, size: 60 %>
+    </p>
+    <p>
+      <%= f.label :rule_type, l(:label_non_working_day_rule_type) %>
+      <%= f.select :rule_type,
+            NonWorkingDayRule::RULE_TYPES.map { |t| [l("label_rule_type_#{t}"), t] },
+            {}, { id: 'nwd-rule-type' } %>
+    </p>
+
+    <%# monthly_day: input type=button でドロップダウンを開く %>
+    <p id="nwd-row-monthly_day" class="nwd-params-row">
+      <%= label_tag 'nwd-day-btn', l(:label_non_working_day_rule_params) %>
+      <input type="button" id="nwd-day-btn"
+             style="min-width:220px; text-align:left; padding:3px 8px; border:1px solid #aaa; border-radius:3px; background:#fff; cursor:pointer;"
+             value="<%= l(:label_non_working_day_rule_params) %>を選択 ▼">
+    </p>
+
+    <%# monthly_nth_weekday %>
+    <p id="nwd-row-monthly_nth_weekday" class="nwd-params-row nwd-row-hidden">
+      <%= label_tag 'nwd-nth', l(:label_non_working_day_rule_params) %>
+      <%= select_tag 'non_working_day_rule[rule_params][nth]',
+            options_for_select((1..5).map { |i| [l("label_nth_#{i}"), i] }), id: 'nwd-nth' %>
+      <%= select_tag 'non_working_day_rule[rule_params][weekday]',
+            options_for_select((0..6).map { |i| [l("label_weekday_#{i}"), i] }) %>
+    </p>
+
+    <%# biweekly %>
+    <p id="nwd-row-biweekly" class="nwd-params-row nwd-row-hidden">
+      <%= label_tag 'weekday_biweekly', l(:label_non_working_day_rule_params) %>
+      <%= select_tag 'non_working_day_rule[rule_params][weekday]',
+            options_for_select((0..6).map { |i| [l("label_weekday_#{i}"), i] }),
+            id: 'weekday_biweekly' %>
+    </p>
+    <%# monthly_last: パラメータなし（行なし）%>
+    <%# monthly_day は初期表示なのでnwd-row-hiddenなし %>
+
+    <p>
+      <%= f.label :start_date, l(:label_non_working_day_rule_start_date) %>
+      <%= f.date_field :start_date %>
+    </p>
+    <p>
+      <%= f.label :end_date, l(:label_non_working_day_rule_end_date) %>
+      <%= f.date_field :end_date %>
+    </p>
+  </div>
+
+  <%# チェックボックスパネル：position:fixed なのでフォーム内ならどこでもOK %>
+  <div id="nwd-day-panel"
+       style="display:none; position:fixed; z-index:300;
+              background:#fff; border:1px solid #aaa; border-radius:3px;
+              padding:10px; min-width:300px; box-shadow:0 3px 8px rgba(0,0,0,0.2);"
+       data-day-unit="<%= l(:label_non_working_day_day_unit) %>">
+    <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:6px; text-align:center;">
+      <% (1..31).each do |d| %>
+        <span style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+          <input type="checkbox" id="nwd_d_<%= d %>"
+                 name="non_working_day_rule[rule_params][days][]"
+                 value="<%= d %>" onchange="nwdUpdateDayBtn()">
+          <span style="cursor:pointer; font-size:0.9em; user-select:none;"
+                onclick="var cb=document.getElementById('nwd_d_<%= d %>');cb.checked=!cb.checked;nwdUpdateDayBtn()"><%= d %><%= l(:label_non_working_day_day_unit) %></span>
+        </span>
+      <% end %>
+    </div>
+    <div style="margin-top:8px; text-align:right; border-top:1px solid #eee; padding-top:6px;">
+      <button type="button" onclick="document.getElementById('nwd-day-panel').style.display='none';"
+              style="padding:2px 12px; cursor:pointer;"><%= l(:button_close) %></button>
+    </div>
+  </div>
+
+  <input type="hidden" name="open_sections" id="nwd_open_sections"
+         value="<%= @open_sections.join(',') %>">
+
+  <%= submit_tag l(:button_save), class: 'button-positive' %>
+  <%= link_to l(:button_cancel), non_working_days_path %>
+<% end %>
+
+<script>
+  // ルール種別切替
+  (function() {
+    var sel = document.getElementById('nwd-rule-type');
+    function showParams() {
+      document.querySelectorAll('.nwd-params-row').forEach(function(el) {
+        el.classList.add('nwd-row-hidden');
+      });
+      var target = document.getElementById('nwd-row-' + sel.value);
+      if (target) target.classList.remove('nwd-row-hidden');
+    }
+    sel.addEventListener('change', showParams);
+    showParams();
+  })();
+
+  // チェックボックスドロップダウン
+  function nwdUpdateDayBtn() {
+    var panel   = document.getElementById('nwd-day-panel');
+    var dayUnit = panel ? (panel.getAttribute('data-day-unit') || '') : '';
+    var checked = [];
+    document.querySelectorAll('[id^="nwd_d_"]:checked').forEach(function(cb) {
+      checked.push(cb.value + dayUnit);
+    });
+    var btn = document.getElementById('nwd-day-btn');
+    if (btn) btn.value = checked.length > 0 ? checked.join(', ') : btn.getAttribute('data-placeholder');
+  }
+
+  var dayBtn   = document.getElementById('nwd-day-btn');
+  var dayPanel = document.getElementById('nwd-day-panel');
+  if (dayBtn) {
+    dayBtn.setAttribute('data-placeholder', dayBtn.value);
+    dayBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (dayPanel.style.display === 'none') {
+        var rect = dayBtn.getBoundingClientRect();
+        dayPanel.style.top  = (rect.bottom + 4) + 'px';
+        dayPanel.style.left = rect.left + 'px';
+        dayPanel.style.display = 'block';
+      } else {
+        dayPanel.style.display = 'none';
+      }
+    });
+    document.addEventListener('click', function(e) {
+      if (dayPanel && !dayPanel.contains(e.target) && e.target !== dayBtn) {
+        dayPanel.style.display = 'none';
+      }
+    });
+  }
+</script>
+
+<% rules_open = @open_sections.include?('rules') %>
+<div id="nwd-list-area">
+  <h3 class="nwd-list-title"><%= l(:label_non_working_day_rules) %></h3>
+
+  <h3 class="nwd-list-header nwd-custom-recurring nwd-accordion-toggle" data-target="nwd-rule-section-rules">
+    <span class="nwd-accordion-arrow <%= 'open' if rules_open %>">▶</span>
+    <%= l(:label_non_working_day_rules) %>
+    <span class="nwd-count">(<%= @listed_rules.size %><%= l(:label_non_working_day_count_rules) %>)</span>
+  </h3>
+  <div id="nwd-rule-section-rules" class="nwd-accordion-body"
+       style="<%= rules_open ? 'display:block' : 'display:none' %>">
+    <table class="list">
+      <thead>
+        <tr>
+          <th><%= l(:label_non_working_day_title) %></th>
+          <th><%= l(:label_non_working_day_rule_type) %></th>
+          <th><%= l(:label_non_working_day_start_date) %></th>
+          <th><%= l(:label_non_working_day_end_date) %></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @listed_rules.each do |rule| %>
+          <tr>
+            <td><%= rule.title %></td>
+            <td><%= l("label_rule_type_#{rule.rule_type}") %></td>
+            <td><%= rule.start_date || l(:label_non_working_day_no_limit) %></td>
+            <td><%= rule.end_date   || l(:label_non_working_day_no_limit) %></td>
+            <td class="buttons">
+              <%= link_to l(:button_non_working_day_delete),
+                    non_working_day_rule_path(rule),
+                    method: :delete,
+                    data: { confirm: l(:text_are_you_sure) },
+                    class: 'icon icon-delete' %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div><%# /nwd-list-area %>
+
+<style>
+  #nwd-list-area {
+    border: 2px solid #aaa; border-radius: 6px; padding: 16px; margin-top: 1.5em;
+  }
+  .nwd-list-title { font-size: 1.1em; margin-bottom: 0.5em; border-bottom: 2px solid #aaa; padding-bottom: 4px; }
+  .nwd-list-header { padding: 4px 10px; border-radius: 3px; display: block; margin-top: 0.8em; cursor: pointer; user-select: none; }
+  .nwd-list-header:hover { opacity: 0.85; }
+  .nwd-custom-recurring { background-color: #ccffcc !important; }
+  .nwd-accordion-arrow { display: inline-block; margin-right: 6px; font-size: 0.8em; transition: transform 0.2s; }
+  .nwd-accordion-arrow.open { transform: rotate(90deg); }
+  .nwd-count { font-size: 0.85em; font-weight: normal; margin-left: 6px; }
+</style>
+
+<script>
+  function updateOpenInput() {
+    var open = [];
+    document.querySelectorAll('.nwd-accordion-toggle').forEach(function(header) {
+      var targetId = header.getAttribute('data-target');
+      var key = targetId.replace('nwd-rule-section-', '');
+      if (document.getElementById(targetId).style.display !== 'none') {
+        open.push(key);
+      }
+    });
+    document.getElementById('nwd_open_sections').value = open.join(',');
+  }
+
+  document.querySelectorAll('.nwd-accordion-toggle').forEach(function(header) {
+    header.addEventListener('click', function() {
+      var targetId = this.getAttribute('data-target');
+      var body     = document.getElementById(targetId);
+      var arrow    = this.querySelector('.nwd-accordion-arrow');
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        arrow.classList.add('open');
+      } else {
+        body.style.display = 'none';
+        arrow.classList.remove('open');
+      }
+      updateOpenInput();
+    });
+  });
+</script>

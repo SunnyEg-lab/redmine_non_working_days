@@ -1,0 +1,289 @@
+<% html_title l(:label_non_working_days) %>
+
+<div class="contextual">
+  <a href="#" class="nwd-btn nwd-standard" id="nwd-btn-standard">
+    <%= l(:label_non_working_day_kind_standard) %>
+  </a>
+  <%= link_to l(:label_non_working_day_fetch_holidays),
+        fetch_non_working_day_holidays_path(year: @year),
+        class: 'nwd-btn nwd-holiday' %>
+  <%= link_to l(:label_non_working_day_add_entry),
+        new_non_working_day_entry_path,
+        class: 'nwd-btn nwd-custom-fixed' %>
+  <%= link_to l(:label_non_working_day_add_rule),
+        new_non_working_day_rule_path,
+        class: 'nwd-btn nwd-custom-recurring' %>
+</div>
+
+<h2><%= l(:label_non_working_days) %></h2>
+
+<div id="nwd-standard-popup" style="display:none; position:fixed; top:50%; left:50%;
+     transform:translate(-50%,-50%); background:white; border:1px solid #aaa;
+     border-radius:6px; padding:20px 24px; z-index:9999; box-shadow:0 4px 12px rgba(0,0,0,0.2);
+     min-width:320px; text-align:center;">
+  <p style="margin:0 0 12px;"><%= l(:label_non_working_day_standard_popup) %></p>
+  <button type="button" onclick="document.getElementById('nwd-standard-popup').style.display='none';
+    document.getElementById('nwd-overlay').style.display='none';">OK</button>
+</div>
+
+<%# ===== 年カレンダー ===== %>
+<div id="nwd-year-calendar">
+  <div class="nwd-nav-top-row">
+    <%= link_to l(:label_non_working_day_this_year),
+          non_working_days_path(year: Date.today.year),
+          class: 'nwd-year-nav-btn' %>
+  </div>
+  <div class="nwd-year-nav">
+    <%= link_to l(:label_non_working_day_prev_year),
+          non_working_days_path(year: @year - 1),
+          class: 'nwd-year-nav-btn', id: 'nwd-prev-year' %>
+    <span class="nwd-year-label"><%= @year %></span>
+    <%= link_to l(:label_non_working_day_next_year),
+          non_working_days_path(year: @year + 1),
+          class: 'nwd-year-nav-btn', id: 'nwd-next-year' %>
+  </div>
+
+  <div class="nwd-months-grid">
+    <% (1..12).each do |month| %>
+      <div class="nwd-mini-month" data-month="<%= month %>">
+        <div class="nwd-mini-month-header">
+          <a href="#nwd-month-calendar" class="nwd-month-link" data-month="<%= month %>">
+            <%= l("date.month_names")[month] %>
+          </a>
+        </div>
+        <%= render 'mini_month', year: @year, month: month, nwd_set: @nwd_set,
+                                 non_working_week_days: @non_working_week_days %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<%# ===== 月カレンダー ===== %>
+<div id="nwd-month-calendar">
+  <div class="nwd-nav-top-row">
+    <span id="nwd-month-today" class="nwd-month-nav-btn"><%= l(:label_non_working_day_this_month) %></span>
+  </div>
+  <div class="nwd-month-nav">
+    <span id="nwd-month-prev" class="nwd-month-nav-btn"><%= l(:label_non_working_day_prev_month) %></span>
+    <span id="nwd-month-title" class="nwd-month-title"></span>
+    <span id="nwd-month-next" class="nwd-month-nav-btn"><%= l(:label_non_working_day_next_month) %></span>
+  </div>
+  <div id="nwd-month-body"></div>
+</div>
+
+<div id="nwd-list-area">
+<h3 class="nwd-list-title"><%= l(:label_non_working_day_list_title, year: @year) %></h3>
+
+<%# ===== 国民の祝日 ===== %>
+<h3 class="nwd-list-header nwd-holiday nwd-accordion-toggle" data-target="nwd-section-holiday">
+  <span class="nwd-accordion-arrow">▶</span>
+  <%= l(:label_non_working_day_kind_holiday) %>
+  <span class="nwd-count">(<%= @holiday_entries.size %><%= l(:label_non_working_day_count_days) %>)</span>
+</h3>
+<div id="nwd-section-holiday" class="nwd-accordion-body" style="display:none">
+<table class="list">
+  <thead>
+    <tr>
+      <th><%= l(:label_non_working_day_date) %></th>
+      <th><%= l(:label_non_working_day_title) %></th>
+      <th><%= l(:label_non_working_day_country_code) %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @holiday_entries.each do |entry| %>
+      <tr>
+        <td><%= entry.date %></td>
+        <td><%= entry.title %></td>
+        <td><%= entry.country_code || l(:label_non_working_day_country_code_custom) %></td>
+        <td class="buttons">
+          <%= link_to l(:button_non_working_day_delete),
+                non_working_day_entry_path(entry),
+                method: :delete,
+                data: { confirm: l(:text_are_you_sure) },
+                class: 'icon icon-delete' %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+</div>
+
+<%# ===== 個別設定 ===== %>
+<h3 class="nwd-list-header nwd-custom-fixed nwd-accordion-toggle" data-target="nwd-section-custom">
+  <span class="nwd-accordion-arrow">▶</span>
+  <%= l(:label_non_working_day_kind_custom_fixed) %>
+  <span class="nwd-count">(<%= @custom_entries.size %><%= l(:label_non_working_day_count_days) %>)</span>
+</h3>
+<div id="nwd-section-custom" class="nwd-accordion-body" style="display:none">
+<table class="list">
+  <thead>
+    <tr>
+      <th><%= l(:label_non_working_day_date) %></th>
+      <th><%= l(:label_non_working_day_title) %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @custom_entries.each do |entry| %>
+      <tr>
+        <td><%= entry.date %></td>
+        <td><%= entry.title %></td>
+        <td class="buttons">
+          <%= link_to l(:button_non_working_day_delete),
+                non_working_day_entry_path(entry),
+                method: :delete,
+                data: { confirm: l(:text_are_you_sure) },
+                class: 'icon icon-delete' %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+</div>
+
+<%# ===== 定期ルール（年に依存しないため独立した見出し） ===== %>
+<h3 class="nwd-list-title" style="margin-top:1.5em;"><%= l(:label_non_working_day_rules) %></h3>
+<h3 class="nwd-list-header nwd-custom-recurring nwd-accordion-toggle" data-target="nwd-section-rules">
+  <span class="nwd-accordion-arrow">▶</span>
+  <%= l(:label_non_working_day_list) %>
+  <span class="nwd-count">(<%= @rules.size %><%= l(:label_non_working_day_count_rules) %>)</span>
+</h3>
+<div id="nwd-section-rules" class="nwd-accordion-body" style="display:none">
+<table class="list">
+  <thead>
+    <tr>
+      <th><%= l(:label_non_working_day_title) %></th>
+      <th><%= l(:label_non_working_day_rule_type) %></th>
+      <th><%= l(:label_non_working_day_start_date) %></th>
+      <th><%= l(:label_non_working_day_end_date) %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @rules.each do |rule| %>
+      <tr>
+        <td><%= rule.title %></td>
+        <td><%= l("label_rule_type_#{rule.rule_type}") %></td>
+        <td><%= rule.start_date || l(:label_non_working_day_no_limit) %></td>
+        <td><%= rule.end_date   || l(:label_non_working_day_no_limit) %></td>
+        <td class="buttons">
+          <%= link_to l(:button_non_working_day_delete),
+                non_working_day_rule_path(rule),
+                method: :delete,
+                data: { confirm: l(:text_are_you_sure) },
+                class: 'icon icon-delete' %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+</div><%# /nwd-section-rules %>
+
+</div><%# /nwd-list-area %>
+
+<% content_for :header_tags do %>
+  <link rel="stylesheet" href="/plugin_assets/redmine_non_working_days/stylesheets/non_working_days.css"
+        data-turbolinks-track="true">
+  <script src="/plugin_assets/redmine_non_working_days/javascripts/non_working_days.js"
+          data-turbolinks-track="true"></script>
+<% end %>
+
+<style>
+  #nwd-year-calendar, #nwd-month-calendar, #nwd-list-area {
+    border: 2px solid #aaa; border-radius: 6px; padding: 16px; margin-bottom: 1.5em;
+  }
+  .nwd-btn {
+    display: inline-block; min-width: 9em; padding: 5px 12px;
+    border: 1px solid #999; border-radius: 4px; text-align: center;
+    font-size: 0.95em; cursor: pointer; text-decoration: none; color: #333;
+    box-sizing: border-box;
+  }
+  .nwd-btn:hover { opacity: 0.85; text-decoration: none; color: #333; }
+  #nwd-year-calendar { margin-bottom: 2em; }
+  .nwd-nav-top-row { text-align: center; margin-bottom: 6px; }
+  .nwd-year-nav { text-align: center; font-size: 1.2em; margin-bottom: 0.5em; }
+  .nwd-year-label { margin: 0 1em; font-weight: bold; }
+  .nwd-months-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .nwd-mini-month { border: 1px solid #ddd; padding: 6px; border-radius: 4px; }
+  .nwd-mini-month-header { text-align: center; font-weight: bold; margin-bottom: 4px; }
+  .nwd-mini-month-header a { text-decoration: none; color: #169; }
+  .nwd-mini-table { width: 100%; border-collapse: collapse; font-size: 0.8em; }
+  .nwd-mini-table th { text-align: center; background: #f5f5f5; padding: 1px 2px; }
+  .nwd-mini-table td { text-align: center; padding: 1px 2px; }
+  .nwd-holiday          { background-color: #ffcccc !important; }
+  .nwd-custom-fixed     { background-color: #cce0ff !important; }
+  .nwd-custom-recurring { background-color: #ccffcc !important; }
+  .nwd-standard         { background-color: #e0e0e0 !important; }
+  .nwd-legend { margin-bottom: 0.8em; }
+  .nwd-legend-item { display: inline-block; padding: 2px 10px; margin-right: 8px; border-radius: 3px; font-size: 0.85em; }
+  #nwd-month-calendar { margin-bottom: 2em; }
+  .nwd-month-nav { display: flex; justify-content: center; align-items: center; gap: 12px;
+                   font-size: 1.2em; margin-bottom: 0.5em; }
+  .nwd-month-nav-btn, .nwd-year-nav-btn {
+    cursor: pointer; color: #169;
+    display: inline-block; min-width: 4.5em; padding: 3px 10px;
+    border: 1px solid #ccc; border-radius: 3px; text-decoration: none;
+    text-align: center; font-size: 1em; box-sizing: border-box;
+  }
+  .nwd-month-nav-btn:hover, .nwd-year-nav-btn:hover { background: #f0f0f0; color: #169; }
+  .nwd-month-title { font-weight: bold; font-size: 1em; min-width: 5em; text-align: center; flex: none; }
+  .nwd-month-table { width: 100%; border-collapse: collapse; }
+  .nwd-month-table th { background: #f5f5f5; border: 1px solid #ddd; text-align: center; padding: 4px; }
+  .nwd-month-table td { border: 1px solid #ddd; vertical-align: top; padding: 4px; min-height: 60px; width: 14%; }
+  .nwd-list-title { font-size: 1.1em; margin-bottom: 0.5em; border-bottom: 2px solid #aaa; padding-bottom: 4px; }
+  .nwd-list-header { padding: 4px 10px; border-radius: 3px; display: block; margin-top: 0.8em; cursor: pointer; user-select: none; }
+  .nwd-list-header:hover { opacity: 0.85; }
+  .nwd-accordion-arrow { display: inline-block; margin-right: 6px; font-size: 0.8em; transition: transform 0.2s; }
+  .nwd-accordion-arrow.open { transform: rotate(90deg); }
+  .nwd-count { font-size: 0.85em; font-weight: normal; margin-left: 6px; }
+  .nwd-day-entries { font-size: 0.8em; }
+  .nwd-day-entry { padding: 1px 3px; margin: 1px 0; border-radius: 2px; }
+  .nwd-more-link { color: #169; cursor: pointer; font-size: 0.8em; }
+  #nwd-popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%);
+               background: white; border: 1px solid #aaa; border-radius: 6px; padding: 16px;
+               min-width: 240px; z-index: 9999; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+  #nwd-popup-close { float: right; cursor: pointer; font-size: 1.2em; color: #888; }
+  #nwd-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+                 background: rgba(0,0,0,0.2); z-index: 9998; }
+</style>
+
+<script>
+  // アコーディオン
+  document.querySelectorAll('.nwd-accordion-toggle').forEach(function(header) {
+    header.addEventListener('click', function() {
+      var targetId = this.getAttribute('data-target');
+      var body     = document.getElementById(targetId);
+      var arrow    = this.querySelector('.nwd-accordion-arrow');
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        arrow.classList.add('open');
+      } else {
+        body.style.display = 'none';
+        arrow.classList.remove('open');
+      }
+    });
+  });
+
+  document.getElementById('nwd-btn-standard').addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('nwd-overlay').style.display = 'block';
+    document.getElementById('nwd-standard-popup').style.display = 'block';
+  });
+
+  NWD.init({
+    year: <%= @year %>,
+    month: <%= Date.today.month %>,
+    nwdData: <%= raw @nwd_set.transform_values { |v| v.map { |d| { title: d[:title], kind: d[:kind] } } }.to_json %>,
+    nonWorkingWeekDays: <%= @non_working_week_days.to_json %>,
+    deleteEntryPath: '<%= non_working_day_entry_path(':id') %>',
+    confirmText: '<%= j l(:text_are_you_sure) %>',
+    labels: {
+      holiday:          '<%= j l(:label_non_working_day_kind_holiday) %>',
+      custom_fixed:     '<%= j l(:label_non_working_day_kind_custom_fixed) %>',
+      custom_recurring: '<%= j l(:label_non_working_day_kind_custom_recurring) %>',
+      standard:         '<%= j l(:label_non_working_day_kind_standard) %>',
+      weekdays: <%= raw (0..6).map { |i| l("label_weekday_#{i}") }.to_json %>
+    }
+  });
+</script>

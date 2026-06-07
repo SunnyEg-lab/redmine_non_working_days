@@ -1,0 +1,33 @@
+<% html_title l(:label_non_working_day_fetch_holidays) %>
+<%= render 'breadcrumb', current_page_title: l(:label_non_working_day_fetch_holidays) %>
+<h2><%= l(:label_non_working_day_fetch_holidays) %></h2>
+
+<%= form_tag import_non_working_day_holidays_path, method: :post do %>
+  <div class="box tabular">
+    <p>
+      <%= label_tag :year, l(:label_non_working_day_fetch_year) %>
+      <%= select_tag :year,
+            options_for_select((1970..(Date.today.year + 1)).to_a.reverse, @year) %>
+    </p>
+    <p>
+      <%= label_tag :country_code, l(:label_non_working_day_fetch_country) %>
+      <% if @countries.present? %>
+        <%= select_tag :country_code,
+              options_for_select(@countries.map { |c| ["#{c['name']} (#{c['countryCode']})", c['countryCode']] },
+                                 @country_code) %>
+      <% else %>
+        <%= text_field_tag :country_code, @country_code, size: 5, required: true %>
+        <em>(Nager.Date API unavailable - enter code manually)</em>
+      <% end %>
+    </p>
+  </div>
+
+  <p class="warning">
+    <%= l(:warning_non_working_day_holidays_overwrite_generic) %><br>
+    <%= l(:hint_non_working_day_fetch_fallback_html,
+          link: link_to(l(:label_non_working_day_add_entry), new_non_working_day_entry_path)).html_safe %>
+  </p>
+
+  <%= submit_tag l(:button_non_working_day_fetch), class: 'button-positive' %>
+  <%= link_to l(:button_cancel), non_working_days_path %>
+<% end %>

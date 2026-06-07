@@ -1,0 +1,65 @@
+/* Non Working Days Plugin */
+
+/* ---- 年カレンダー ---- */
+#nwd-year-calendar { margin-bottom: 2em; }
+
+.nwd-year-nav { text-align: center; font-size: 1.4em; margin-bottom: 0.5em; }
+.nwd-year-label { margin: 0 1em; font-weight: bold; }
+
+.nwd-legend { margin-bottom: 0.8em; }
+.nwd-legend-item { display: inline-block; padding: 2px 10px; margin-right: 8px;
+                   border-radius: 3px; font-size: 0.85em; }
+
+.nwd-months-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+.nwd-mini-month { border: 1px solid #ddd; padding: 6px; border-radius: 4px; }
+.nwd-mini-month-header { text-align: center; font-weight: bold; margin-bottom: 4px; }
+.nwd-mini-month-header a { text-decoration: none; color: #169; }
+.nwd-mini-month-header a:hover { text-decoration: underline; }
+
+.nwd-mini-table { width: 100%; border-collapse: collapse; font-size: 0.8em; }
+.nwd-mini-table th { text-align: center; background: #f5f5f5; padding: 1px 2px; }
+.nwd-mini-table td { text-align: center; padding: 1px 2px; }
+
+/* ---- 種別カラー ---- */
+.nwd-holiday          { background-color: #ffcccc !important; }
+.nwd-custom-fixed     { background-color: #cce0ff !important; }
+.nwd-custom-recurring { background-color: #ccffcc !important; }
+.nwd-standard         { background-color: #e0e0e0 !important; }
+
+/* 凡例サンプルカラー */
+.nwd-legend .nwd-holiday          { background-color: #ffcccc; }
+.nwd-legend .nwd-custom-fixed     { background-color: #cce0ff; }
+.nwd-legend .nwd-custom-recurring { background-color: #ccffcc; }
+.nwd-legend .nwd-standard         { background-color: #e0e0e0; }
+
+/* ---- 月カレンダー ---- */
+#nwd-month-calendar { margin-bottom: 2em; }
+
+.nwd-month-nav { display: flex; justify-content: center; align-items: center; gap: 12px;
+                 margin-bottom: 0.8em; }
+.nwd-month-nav-btn { cursor: pointer; color: #169; padding: 3px 8px;
+                     border: 1px solid #ccc; border-radius: 3px; }
+.nwd-month-nav-btn:hover { background: #f0f0f0; }
+.nwd-month-title { font-weight: bold; font-size: 1em; flex: none; min-width: 5em; text-align: center; }
+
+.nwd-month-table { width: 100%; border-collapse: collapse; }
+.nwd-month-table th { background: #f5f5f5; border: 1px solid #ddd;
+                      text-align: center; padding: 4px; }
+.nwd-month-table td { border: 1px solid #ddd; vertical-align: top;
+                      padding: 4px; min-height: 60px; width: 14%; }
+.nwd-month-table td.nwd-day-num { font-weight: bold; margin-bottom: 2px; }
+.nwd-day-entries { font-size: 0.8em; }
+.nwd-day-entry { padding: 1px 3px; margin: 1px 0; border-radius: 2px; }
+.nwd-more-link  { color: #169; cursor: pointer; font-size: 0.8em; }
+
+/* ---- ポップアップ ---- */
+#nwd-popup { display: none; position: fixed; top: 50%; left: 50%;
+             transform: translate(-50%, -50%);
+             background: white; border: 1px solid #aaa; border-radius: 6px;
+             padding: 16px; min-width: 240px; z-index: 9999;
+             box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+#nwd-popup-close { float: right; cursor: pointer; font-size: 1.2em; color: #888; }
+#nwd-popup-close:hover { color: #333; }
+#nwd-overlay { display: none; position: fixed; top:0; left:0;
+               width:100%; height:100%; background: rgba(0,0,0,0.2); z-index: 9998; }

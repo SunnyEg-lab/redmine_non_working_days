@@ -1,0 +1,153 @@
+<% html_title l(:label_non_working_day_add_entry) %>
+<%= render 'breadcrumb', current_page_title: l(:label_non_working_day_add_entry) %>
+<h2><%= l(:label_non_working_day_add_entry) %></h2>
+
+<%= form_with model: @entry, url: non_working_day_entries_path, local: true do |f| %>
+  <%= render partial: 'shared/error_messages', locals: { objects: [@entry] } if @entry.errors.any? %>
+
+  <div class="box tabular">
+    <p>
+      <%= f.label :date,  l(:label_non_working_day_date) %>
+      <%= f.date_field :date, required: true %>
+    </p>
+    <p>
+      <%= f.label :title, l(:label_non_working_day_title) %>
+      <%= f.text_field :title, required: true, size: 60 %>
+    </p>
+    <p>
+      <%= f.label :kind, l(:label_non_working_day_kind) %>
+      <%= f.select :kind,
+            [
+              [l(:label_non_working_day_kind_custom_fixed), 'custom_fixed'],
+              [l(:label_non_working_day_kind_holiday),      'holiday']
+            ] %>
+    </p>
+  </div>
+
+  <%# アコーディオン開閉状態をフォームで持ち回す %>
+  <input type="hidden" name="open_sections" id="nwd_open_sections"
+         value="<%= @open_sections.join(',') %>">
+
+  <%= submit_tag l(:button_save), class: 'button-positive' %>
+  <%= link_to l(:button_cancel), non_working_days_path %>
+<% end %>
+
+<div id="nwd-list-area">
+  <h3 class="nwd-list-title"><%= l(:label_non_working_day_list_title, year: @filter_year) %></h3>
+
+  <%# ===== 祝日 ===== %>
+  <% holiday_open = @open_sections.include?('holiday') %>
+  <h3 class="nwd-list-header nwd-holiday nwd-accordion-toggle" data-target="nwd-entry-section-holiday">
+    <span class="nwd-accordion-arrow <%= 'open' if holiday_open %>">▶</span>
+    <%= l(:label_non_working_day_kind_holiday) %>
+    <span class="nwd-count">(<%= @holiday_listed.size %><%= l(:label_non_working_day_count_days) %>)</span>
+  </h3>
+  <div id="nwd-entry-section-holiday" class="nwd-accordion-body"
+       style="<%= holiday_open ? 'display:block' : 'display:none' %>">
+    <table class="list">
+      <thead>
+        <tr>
+          <th><%= l(:label_non_working_day_date) %></th>
+          <th><%= l(:label_non_working_day_title) %></th>
+          <th><%= l(:label_non_working_day_country_code) %></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @holiday_listed.each do |entry| %>
+          <tr>
+            <td><%= entry.date %></td>
+            <td><%= entry.title %></td>
+            <td><%= entry.country_code || l(:label_non_working_day_country_code_custom) %></td>
+            <td class="buttons">
+              <%= link_to l(:button_non_working_day_delete),
+                    non_working_day_entry_path(entry),
+                    method: :delete,
+                    data: { confirm: l(:text_are_you_sure) },
+                    class: 'icon icon-delete' %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+
+  <%# ===== 個別設定 ===== %>
+  <% custom_open = @open_sections.include?('custom') %>
+  <h3 class="nwd-list-header nwd-custom-fixed nwd-accordion-toggle" data-target="nwd-entry-section-custom">
+    <span class="nwd-accordion-arrow <%= 'open' if custom_open %>">▶</span>
+    <%= l(:label_non_working_day_kind_custom_fixed) %>
+    <span class="nwd-count">(<%= @custom_listed.size %><%= l(:label_non_working_day_count_days) %>)</span>
+  </h3>
+  <div id="nwd-entry-section-custom" class="nwd-accordion-body"
+       style="<%= custom_open ? 'display:block' : 'display:none' %>">
+    <table class="list">
+      <thead>
+        <tr>
+          <th><%= l(:label_non_working_day_date) %></th>
+          <th><%= l(:label_non_working_day_title) %></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @custom_listed.each do |entry| %>
+          <tr>
+            <td><%= entry.date %></td>
+            <td><%= entry.title %></td>
+            <td class="buttons">
+              <%= link_to l(:button_non_working_day_delete),
+                    non_working_day_entry_path(entry),
+                    method: :delete,
+                    data: { confirm: l(:text_are_you_sure) },
+                    class: 'icon icon-delete' %>
+            </td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </div>
+</div><%# /nwd-list-area %>
+
+<style>
+  #nwd-list-area {
+    border: 2px solid #aaa; border-radius: 6px; padding: 16px; margin-top: 1.5em;
+  }
+  .nwd-list-title { font-size: 1.1em; margin-bottom: 0.5em; border-bottom: 2px solid #aaa; padding-bottom: 4px; }
+  .nwd-list-header { padding: 4px 10px; border-radius: 3px; display: block; margin-top: 0.8em; cursor: pointer; user-select: none; }
+  .nwd-list-header:hover { opacity: 0.85; }
+  .nwd-holiday      { background-color: #ffcccc !important; }
+  .nwd-custom-fixed { background-color: #cce0ff !important; }
+  .nwd-accordion-arrow { display: inline-block; margin-right: 6px; font-size: 0.8em; transition: transform 0.2s; }
+  .nwd-accordion-arrow.open { transform: rotate(90deg); }
+  .nwd-count { font-size: 0.85em; font-weight: normal; margin-left: 6px; }
+</style>
+
+<script>
+  function updateOpenInput() {
+    var open = [];
+    document.querySelectorAll('.nwd-accordion-toggle').forEach(function(header) {
+      var targetId = header.getAttribute('data-target');
+      var key = targetId.replace('nwd-entry-section-', '');
+      if (document.getElementById(targetId).style.display !== 'none') {
+        open.push(key);
+      }
+    });
+    document.getElementById('nwd_open_sections').value = open.join(',');
+  }
+
+  document.querySelectorAll('.nwd-accordion-toggle').forEach(function(header) {
+    header.addEventListener('click', function() {
+      var targetId = this.getAttribute('data-target');
+      var body     = document.getElementById(targetId);
+      var arrow    = this.querySelector('.nwd-accordion-arrow');
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        arrow.classList.add('open');
+      } else {
+        body.style.display = 'none';
+        arrow.classList.remove('open');
+      }
+      updateOpenInput();
+    });
+  });
+</script>

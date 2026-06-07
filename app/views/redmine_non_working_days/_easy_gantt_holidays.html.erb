@@ -1,0 +1,17 @@
+<%#
+  EasyGantt の標準機能 ysy.settings.holidays（"YYYY-MM-DD" の配列）に、
+  本プラグインが管理する非稼働日（祝日・個別設定・定期ルール）を追加する。
+  ysy.settings は _js_prepare（easy_gantt 側）で初期化済みのため、
+  ガント初期化（$(document).ready 内の initNonworkingDays）より前に
+  この body 末尾フックで上書きすれば反映される。
+-%>
+<%
+  from  = Date.today - 1.year
+  to    = Date.today + 2.years
+  dates = RedmineNonWorkingDays::Cache.expand_for_range(from, to).map { |e| e[:date].to_s }
+%>
+<%= javascript_tag do %>
+  window.ysy = window.ysy || {};
+  ysy.settings = ysy.settings || {};
+  ysy.settings.holidays = (ysy.settings.holidays || []).concat(<%= raw dates.to_json %>);
+<% end %>

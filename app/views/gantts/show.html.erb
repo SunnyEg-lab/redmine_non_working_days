@@ -1,3 +1,10 @@
+<%#
+  redmine_non_working_days プラグインによる上書き。
+  コア(app/views/gantts/show.html.erb)とほぼ同一。
+  「Day numbers headers」「Days headers」内の非稼働日判定 (nwday クラス) のみ、
+  曜日(non_working_week_days)だけでなく祝日・個別設定・定期ルールも含めて判定する
+  @gantt.non_working_day?(date) に差し替えている。
+-%>
 <% @gantt.view = self %>
 <div class="contextual">
 </div>
@@ -309,7 +316,7 @@
       style += "height:#{height}px;"
       style += "font-size:0.7em;"
       clss = "gantt_hdr"
-      clss << " nwday" if non_working_day?(day_num)
+      clss << " nwday" if @gantt.non_working_day?(day_num)
     %>
     <%= content_tag(:div, :style => style, :class => clss) do %>
       <%= day_num.day %>
@@ -340,7 +347,7 @@
       style += "height: #{height}px;"
       style += "font-size:0.7em;"
       clss = "gantt_hdr"
-      clss << " nwday" if non_working_day?(g_date)
+      clss << " nwday" if @gantt.non_working_day?(g_date)
     %>
     <%= content_tag(:div, :style => style, :class => clss) do %>
       <%= day_letter(g_date.cwday) %>
@@ -431,11 +438,3 @@
   });
 <% end %>
 <%= context_menu %>
-
-<script>
-  // Redmine 本体で計算した非稼働日一覧を EasyGantt に渡す
-  window.ysy = window.ysy || {};
-  ysy.settings = ysy.settings || {};
-  ysy.settings.customNonWorkingDays = <%= raw @non_working_days.to_json %>;
-</script>
-
