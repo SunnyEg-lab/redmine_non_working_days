@@ -4,3 +4,19 @@
         settings['nager_api_base'] || 'https://date.nager.at',
         size: 60 %>
 </p>
+
+<fieldset class="box">
+  <legend><%= l(:button_non_working_day_delete_all) %></legend>
+  <p>
+    <%= link_to l(:button_non_working_day_delete_all),
+          destroy_all_non_working_days_path,
+          method: :delete,
+          data: { confirm: l(:text_non_working_day_delete_all_confirm) },
+          class: 'icon icon-del' %>
+  </p>
+  <p class="nwd-settings-hint"><%= l(:text_non_working_day_delete_all_hint) %></p>
+</fieldset>
+
+<style>
+  .nwd-settings-hint { font-size: 0.85em; color: #888; margin-top: 0.3em; }
+</style>

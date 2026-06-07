@@ -65,6 +65,14 @@ class NonWorkingDaysController < ApplicationController
     redirect_back(fallback_location: non_working_days_path(year: year))
   end
 
+  # DELETE /non_working_days/entries (bulk)
+  def destroy_entries
+    ids = bulk_ids
+    NonWorkingDayEntry.where(id: ids).destroy_all
+    flash[:notice] = l(:notice_non_working_day_entry_deleted)
+    redirect_back(fallback_location: non_working_days_path)
+  end
+
   # GET /non_working_days/rules/new
   def new_rule
     @rule = NonWorkingDayRule.new(
@@ -102,6 +110,23 @@ class NonWorkingDaysController < ApplicationController
     redirect_back(fallback_location: non_working_days_path)
   end
 
+  # DELETE /non_working_days/rules (bulk)
+  def destroy_rules
+    ids = bulk_ids
+    NonWorkingDayRule.where(id: ids).destroy_all
+    flash[:notice] = l(:notice_non_working_day_rule_deleted)
+    redirect_back(fallback_location: non_working_days_path)
+  end
+
+  # DELETE /non_working_days/destroy_all
+  def destroy_all
+    NonWorkingDayEntry.destroy_all
+    NonWorkingDayRule.destroy_all
+    RedmineNonWorkingDays::Cache.invalidate!
+    flash[:notice] = l(:notice_non_working_day_all_deleted)
+    redirect_to plugin_settings_path(id: 'redmine_non_working_days')
+  end
+
   # GET /non_working_days/holidays/fetch?year=2026
   def fetch_holidays
     @year          = (params[:year] || Date.today.year + 1).to_i
@@ -132,14 +157,20 @@ class NonWorkingDaysController < ApplicationController
         .where('EXTRACT(YEAR FROM date) = ?', year)
         .delete_all
 
-      holidays.each do |h|
-        NonWorkingDayEntry.create!(
-          date:         Date.parse(h['date']),
-          title:        h['localName'].presence || h['name'],
-          kind:         'holiday',
-          country_code: country_code
-        )
-      end
+      # Nager.Date API は州・地域ごとの祝日を別レコードとして返すため、
+      # 同一日付・同一名称のものが重複して含まれる（例: 米国の Good Friday）。
+      # 非稼働日カレンダーとしては日付＋名称が同じなら1件で十分なため重複排除する。
+      holidays
+        .map { |h| { date: Date.parse(h['date']), title: h['localName'].presence || h['name'] } }
+        .uniq { |h| [h[:date], h[:title]] }
+        .each do |h|
+          NonWorkingDayEntry.create!(
+            date:         h[:date],
+            title:        h[:title],
+            kind:         'holiday',
+            country_code: country_code
+          )
+        end
     end
 
     RedmineNonWorkingDays::Cache.invalidate!
@@ -164,6 +195,10 @@ class NonWorkingDaysController < ApplicationController
   end
 
   private
+
+  def bulk_ids
+    Array(params[:ids]).map(&:to_i).reject(&:zero?)
+  end
 
   def carried_rule_type
     type = params[:rule_type]

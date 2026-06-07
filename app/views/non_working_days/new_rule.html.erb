@@ -98,15 +98,34 @@
 <% end %>
 
 <script>
+  // 一括削除：全選択チェックボックスで配下の行チェックボックスを一括ON/OFF
+  document.addEventListener('change', function(e) {
+    if (!e.target.classList.contains('nwd-select-all')) return;
+    var form = e.target.closest('form');
+    if (!form) return;
+    form.querySelectorAll('.nwd-row-checkbox').forEach(function(cb) {
+      cb.checked = e.target.checked;
+    });
+  });
+
   // ルール種別切替
   (function() {
     var sel = document.getElementById('nwd-rule-type');
     function showParams() {
       document.querySelectorAll('.nwd-params-row').forEach(function(el) {
         el.classList.add('nwd-row-hidden');
+        // 非表示行の入力欄は無効化し、同名フィールドの値で上書きされないようにする
+        el.querySelectorAll('select, input, textarea').forEach(function(field) {
+          field.disabled = true;
+        });
       });
       var target = document.getElementById('nwd-row-' + sel.value);
-      if (target) target.classList.remove('nwd-row-hidden');
+      if (target) {
+        target.classList.remove('nwd-row-hidden');
+        target.querySelectorAll('select, input, textarea').forEach(function(field) {
+          field.disabled = false;
+        });
+      }
     }
     sel.addEventListener('change', showParams);
     showParams();
@@ -158,34 +177,41 @@
   </h3>
   <div id="nwd-rule-section-rules" class="nwd-accordion-body"
        style="<%= rules_open ? 'display:block' : 'display:none' %>">
-    <table class="list">
-      <thead>
-        <tr>
-          <th><%= l(:label_non_working_day_title) %></th>
-          <th><%= l(:label_non_working_day_rule_type) %></th>
-          <th><%= l(:label_non_working_day_start_date) %></th>
-          <th><%= l(:label_non_working_day_end_date) %></th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <% @listed_rules.each do |rule| %>
+    <%= form_tag(bulk_destroy_non_working_day_rules_path, method: :delete, class: 'nwd-bulk-form') do %>
+      <%= render 'bulk_delete_bar', empty: @listed_rules.empty? %>
+      <table class="list">
+        <thead>
           <tr>
-            <td><%= rule.title %></td>
-            <td><%= l("label_rule_type_#{rule.rule_type}") %></td>
-            <td><%= rule.start_date || l(:label_non_working_day_no_limit) %></td>
-            <td><%= rule.end_date   || l(:label_non_working_day_no_limit) %></td>
-            <td class="buttons">
-              <%= link_to l(:button_non_working_day_delete),
-                    non_working_day_rule_path(rule),
-                    method: :delete,
-                    data: { confirm: l(:text_are_you_sure) },
-                    class: 'icon icon-delete' %>
-            </td>
+            <th></th>
+            <th><%= l(:label_non_working_day_title) %></th>
+            <th><%= l(:label_non_working_day_rule_type) %></th>
+            <th><%= l(:label_non_working_day_rule_params) %></th>
+            <th><%= l(:label_non_working_day_start_date) %></th>
+            <th><%= l(:label_non_working_day_end_date) %></th>
+            <th></th>
           </tr>
-        <% end %>
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          <% @listed_rules.each do |rule| %>
+            <tr>
+              <td><%= check_box_tag 'ids[]', rule.id, false, id: nil, class: 'nwd-row-checkbox' %></td>
+              <td><%= rule.title %></td>
+              <td><%= l("label_rule_type_#{rule.rule_type}") %></td>
+              <td><%= rule.description %></td>
+              <td><%= rule.start_date || l(:label_non_working_day_no_limit) %></td>
+              <td><%= rule.end_date   || l(:label_non_working_day_no_limit) %></td>
+              <td class="buttons">
+                <%= link_to l(:button_non_working_day_delete),
+                      non_working_day_rule_path(rule),
+                      method: :delete,
+                      data: { confirm: l(:text_are_you_sure) },
+                      class: 'icon icon-delete' %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    <% end %>
   </div>
 </div><%# /nwd-list-area %>
 

@@ -58,6 +58,9 @@ en:
   label_weekday_5: "Fri"
   label_weekday_6: "Sat"
 
+  label_non_working_day_rule_desc_monthly_nth_weekday: "%{nth} %{weekday}"
+  label_non_working_day_rule_desc_biweekly: "Biweekly %{weekday}"
+
   notice_non_working_day_entry_created: "Non-working day was successfully created."
   notice_non_working_day_entry_deleted: "Non-working day was successfully deleted."
   notice_non_working_day_rule_created: "Recurring rule was successfully created."
@@ -77,6 +80,12 @@ en:
   label_non_working_day_count_rules: " rules"
   button_non_working_day_fetch: "Fetch and Import"
   button_non_working_day_delete: "Delete"
+  button_non_working_day_delete_selected: "Delete Selected"
+  button_non_working_day_delete_all: "Delete All Non-Working Day Settings"
+  label_non_working_day_select_all: "Select All"
+  text_non_working_day_delete_all_confirm: "This will delete ALL non-working day settings, including holidays, fixed dates, and recurring rules. Continue?"
+  text_non_working_day_delete_all_hint: "* Redmine's standard day-off settings (Administration >> Settings >> Issue tracking) will not be affected."
+  notice_non_working_day_all_deleted: "All non-working day settings were deleted."
   label_non_working_day_standard_popup: "Configure at Administration >> Settings >> Issue tracking >> Non-working days"
 
   activerecord:

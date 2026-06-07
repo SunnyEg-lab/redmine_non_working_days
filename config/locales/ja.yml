@@ -58,6 +58,9 @@ ja:
   label_weekday_5: "金"
   label_weekday_6: "土"
 
+  label_non_working_day_rule_desc_monthly_nth_weekday: "%{nth}%{weekday}"
+  label_non_working_day_rule_desc_biweekly: "隔週%{weekday}"
+
   notice_non_working_day_entry_created: "非稼働日を登録しました。"
   notice_non_working_day_entry_deleted: "非稼働日を削除しました。"
   notice_non_working_day_rule_created: "定期ルールを登録しました。"
@@ -77,6 +80,12 @@ ja:
   label_non_working_day_count_rules: "件"
   button_non_working_day_fetch: "取得して登録"
   button_non_working_day_delete: "削除"
+  button_non_working_day_delete_selected: "選択した項目を削除"
+  button_non_working_day_delete_all: "全ての非稼働日設定を削除する"
+  label_non_working_day_select_all: "全選択"
+  text_non_working_day_delete_all_confirm: "祝日・個別設定・定期ルールを含む、全ての非稼働日設定を削除します。よろしいですか？"
+  text_non_working_day_delete_all_hint: "※Redmine純正の休業日設定（管理 >> 設定 >> チケットトラッキング）は削除されません。"
+  notice_non_working_day_all_deleted: "全ての非稼働日設定を削除しました。"
   label_non_working_day_standard_popup: "管理 >> 設定 >> チケットトラッキング の「休業日」で設定してください。"
 
   activerecord:

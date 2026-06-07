@@ -81,32 +81,37 @@
   <span class="nwd-count">(<%= @holiday_entries.size %><%= l(:label_non_working_day_count_days) %>)</span>
 </h3>
 <div id="nwd-section-holiday" class="nwd-accordion-body" style="display:none">
-<table class="list">
-  <thead>
-    <tr>
-      <th><%= l(:label_non_working_day_date) %></th>
-      <th><%= l(:label_non_working_day_title) %></th>
-      <th><%= l(:label_non_working_day_country_code) %></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @holiday_entries.each do |entry| %>
+<%= form_tag(bulk_destroy_non_working_day_entries_path(year: @year), method: :delete, class: 'nwd-bulk-form') do %>
+  <%= render 'bulk_delete_bar', empty: @holiday_entries.empty? %>
+  <table class="list">
+    <thead>
       <tr>
-        <td><%= entry.date %></td>
-        <td><%= entry.title %></td>
-        <td><%= entry.country_code || l(:label_non_working_day_country_code_custom) %></td>
-        <td class="buttons">
-          <%= link_to l(:button_non_working_day_delete),
-                non_working_day_entry_path(entry),
-                method: :delete,
-                data: { confirm: l(:text_are_you_sure) },
-                class: 'icon icon-delete' %>
-        </td>
+        <th></th>
+        <th><%= l(:label_non_working_day_date) %></th>
+        <th><%= l(:label_non_working_day_title) %></th>
+        <th><%= l(:label_non_working_day_country_code) %></th>
+        <th></th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <% @holiday_entries.each do |entry| %>
+        <tr>
+          <td><%= check_box_tag 'ids[]', entry.id, false, id: nil, class: 'nwd-row-checkbox' %></td>
+          <td><%= entry.date %></td>
+          <td><%= entry.title %></td>
+          <td><%= entry.country_code || l(:label_non_working_day_country_code_custom) %></td>
+          <td class="buttons">
+            <%= link_to l(:button_non_working_day_delete),
+                  non_working_day_entry_path(entry),
+                  method: :delete,
+                  data: { confirm: l(:text_are_you_sure) },
+                  class: 'icon icon-delete' %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
 </div>
 
 <%# ===== 個別設定 ===== %>
@@ -116,30 +121,35 @@
   <span class="nwd-count">(<%= @custom_entries.size %><%= l(:label_non_working_day_count_days) %>)</span>
 </h3>
 <div id="nwd-section-custom" class="nwd-accordion-body" style="display:none">
-<table class="list">
-  <thead>
-    <tr>
-      <th><%= l(:label_non_working_day_date) %></th>
-      <th><%= l(:label_non_working_day_title) %></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @custom_entries.each do |entry| %>
+<%= form_tag(bulk_destroy_non_working_day_entries_path(year: @year), method: :delete, class: 'nwd-bulk-form') do %>
+  <%= render 'bulk_delete_bar', empty: @custom_entries.empty? %>
+  <table class="list">
+    <thead>
       <tr>
-        <td><%= entry.date %></td>
-        <td><%= entry.title %></td>
-        <td class="buttons">
-          <%= link_to l(:button_non_working_day_delete),
-                non_working_day_entry_path(entry),
-                method: :delete,
-                data: { confirm: l(:text_are_you_sure) },
-                class: 'icon icon-delete' %>
-        </td>
+        <th></th>
+        <th><%= l(:label_non_working_day_date) %></th>
+        <th><%= l(:label_non_working_day_title) %></th>
+        <th></th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <% @custom_entries.each do |entry| %>
+        <tr>
+          <td><%= check_box_tag 'ids[]', entry.id, false, id: nil, class: 'nwd-row-checkbox' %></td>
+          <td><%= entry.date %></td>
+          <td><%= entry.title %></td>
+          <td class="buttons">
+            <%= link_to l(:button_non_working_day_delete),
+                  non_working_day_entry_path(entry),
+                  method: :delete,
+                  data: { confirm: l(:text_are_you_sure) },
+                  class: 'icon icon-delete' %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
 </div>
 
 <%# ===== 定期ルール（年に依存しないため独立した見出し） ===== %>
@@ -150,34 +160,41 @@
   <span class="nwd-count">(<%= @rules.size %><%= l(:label_non_working_day_count_rules) %>)</span>
 </h3>
 <div id="nwd-section-rules" class="nwd-accordion-body" style="display:none">
-<table class="list">
-  <thead>
-    <tr>
-      <th><%= l(:label_non_working_day_title) %></th>
-      <th><%= l(:label_non_working_day_rule_type) %></th>
-      <th><%= l(:label_non_working_day_start_date) %></th>
-      <th><%= l(:label_non_working_day_end_date) %></th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    <% @rules.each do |rule| %>
+<%= form_tag(bulk_destroy_non_working_day_rules_path, method: :delete, class: 'nwd-bulk-form') do %>
+  <%= render 'bulk_delete_bar', empty: @rules.empty? %>
+  <table class="list">
+    <thead>
       <tr>
-        <td><%= rule.title %></td>
-        <td><%= l("label_rule_type_#{rule.rule_type}") %></td>
-        <td><%= rule.start_date || l(:label_non_working_day_no_limit) %></td>
-        <td><%= rule.end_date   || l(:label_non_working_day_no_limit) %></td>
-        <td class="buttons">
-          <%= link_to l(:button_non_working_day_delete),
-                non_working_day_rule_path(rule),
-                method: :delete,
-                data: { confirm: l(:text_are_you_sure) },
-                class: 'icon icon-delete' %>
-        </td>
+        <th></th>
+        <th><%= l(:label_non_working_day_title) %></th>
+        <th><%= l(:label_non_working_day_rule_type) %></th>
+        <th><%= l(:label_non_working_day_rule_params) %></th>
+        <th><%= l(:label_non_working_day_start_date) %></th>
+        <th><%= l(:label_non_working_day_end_date) %></th>
+        <th></th>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <% @rules.each do |rule| %>
+        <tr>
+          <td><%= check_box_tag 'ids[]', rule.id, false, id: nil, class: 'nwd-row-checkbox' %></td>
+          <td><%= rule.title %></td>
+          <td><%= l("label_rule_type_#{rule.rule_type}") %></td>
+          <td><%= rule.description %></td>
+          <td><%= rule.start_date || l(:label_non_working_day_no_limit) %></td>
+          <td><%= rule.end_date   || l(:label_non_working_day_no_limit) %></td>
+          <td class="buttons">
+            <%= link_to l(:button_non_working_day_delete),
+                  non_working_day_rule_path(rule),
+                  method: :delete,
+                  data: { confirm: l(:text_are_you_sure) },
+                  class: 'icon icon-delete' %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>
 </div><%# /nwd-section-rules %>
 
 </div><%# /nwd-list-area %>
@@ -249,6 +266,16 @@
 </style>
 
 <script>
+  // 一括削除：全選択チェックボックスで配下の行チェックボックスを一括ON/OFF
+  document.addEventListener('change', function(e) {
+    if (!e.target.classList.contains('nwd-select-all')) return;
+    var form = e.target.closest('form');
+    if (!form) return;
+    form.querySelectorAll('.nwd-row-checkbox').forEach(function(cb) {
+      cb.checked = e.target.checked;
+    });
+  });
+
   // アコーディオン
   document.querySelectorAll('.nwd-accordion-toggle').forEach(function(header) {
     header.addEventListener('click', function() {

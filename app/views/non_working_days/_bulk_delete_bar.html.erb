@@ -1,0 +1,11 @@
+<% empty = local_assigns.fetch(:empty, false) %>
+<div class="nwd-bulk-bar">
+  <label>
+    <%= check_box_tag nil, '1', false, class: 'nwd-select-all', disabled: empty %>
+    <%= l(:label_non_working_day_select_all) %>
+  </label>
+  <%= submit_tag l(:button_non_working_day_delete_selected),
+        class: 'nwd-bulk-delete-btn',
+        disabled: empty,
+        data: { confirm: l(:text_are_you_sure) } %>
+</div>

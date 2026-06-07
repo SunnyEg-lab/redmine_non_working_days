@@ -13,6 +13,29 @@ class NonWorkingDayRule < ActiveRecord::Base
   after_save    { RedmineNonWorkingDays::Cache.invalidate! }
   after_destroy { RedmineNonWorkingDays::Cache.invalidate! }
 
+  # 一覧表示用：ルール設定を人間が読める文字列に変換する（例: "第1金曜日"）
+  def description
+    params = rule_params.presence || {}
+
+    case rule_type
+    when 'monthly_day'
+      unit = I18n.t(:label_non_working_day_day_unit)
+      days = Array(params['days']).map(&:to_i).sort
+      days.map { |d| "#{d}#{unit}" }.join(', ')
+    when 'monthly_last'
+      I18n.t(:label_rule_type_monthly_last)
+    when 'monthly_nth_weekday'
+      I18n.t(:label_non_working_day_rule_desc_monthly_nth_weekday,
+             nth:     I18n.t("label_nth_#{params['nth']}"),
+             weekday: I18n.t("label_weekday_#{params['weekday']}"))
+    when 'biweekly'
+      I18n.t(:label_non_working_day_rule_desc_biweekly,
+             weekday: I18n.t("label_weekday_#{params['weekday']}"))
+    else
+      ''
+    end
+  end
+
   # 指定日付がこのルールに該当するか評価する
   def matches?(date)
     return false if start_date.present? && date < start_date
