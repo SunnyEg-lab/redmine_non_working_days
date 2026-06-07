@@ -1,4 +1,8 @@
 <% html_title l(:label_non_working_day_add_rule) %>
+<% content_for :header_tags do %>
+  <link rel="stylesheet" href="/plugin_assets/redmine_non_working_days/stylesheets/non_working_days.css"
+        data-turbolinks-track="true">
+<% end %>
 <style>
   .nwd-row-hidden {
     display: none !important;
@@ -31,7 +35,7 @@
       <%= label_tag 'nwd-day-btn', l(:label_non_working_day_rule_params) %>
       <input type="button" id="nwd-day-btn"
              style="min-width:220px; text-align:left; padding:3px 8px; border:1px solid #aaa; border-radius:3px; background:#fff; cursor:pointer;"
-             value="<%= l(:label_non_working_day_rule_params) %>を選択 ▼">
+             value="<%= l(:label_non_working_day_select_days_placeholder) %>">
     </p>
 
     <%# monthly_nth_weekday %>

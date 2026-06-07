@@ -23,6 +23,7 @@ ja:
   label_non_working_day_rule_end_date: "繰り返し終了日"
   label_non_working_day_rule_type: "ルール種別"
   label_non_working_day_rule_params: "ルール設定"
+  label_non_working_day_select_days_placeholder: "日を選択 ▼"
   label_non_working_day_day_unit: "日"
   label_non_working_day_no_limit: "制限なし"
   label_non_working_day_fetch_holidays: "祝日取得"

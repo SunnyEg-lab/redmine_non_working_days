@@ -1,5 +1,9 @@
 /* Non Working Days Plugin */
 
+/* 英語表記時に "Monthly Xth week, weekday Y" 等の項目が折り返されるため、
+   既定の自動幅（約200px）の1.5倍を確保する */
+#nwd-rule-type { width: 300px; }
+
 /* ---- 年カレンダー ---- */
 #nwd-year-calendar { margin-bottom: 2em; }
 
