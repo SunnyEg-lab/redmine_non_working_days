@@ -4,8 +4,9 @@ module RedmineNonWorkingDays
   module DateCalculationPatch
     def working_day?(date)
       return false if RedmineNonWorkingDays::Cache.non_working_date?(date)
+      return false if non_working_week_days.include?(date.cwday)
 
-      super
+      true
     end
 
     def add_working_days(date, working_days)
