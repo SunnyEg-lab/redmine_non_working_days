@@ -5,6 +5,7 @@ require 'json'
 require 'set'
 
 require_relative 'lib/redmine_non_working_days/cache'
+require_relative 'lib/redmine_non_working_days/calendar_patch'
 require_relative 'lib/redmine_non_working_days/date_calculation_patch'
 require_relative 'lib/redmine_non_working_days/gantt_helper'
 require_relative 'lib/redmine_non_working_days/gantt_patch'
@@ -37,7 +38,9 @@ Rails.application.config.assets.precompile += %w[non_working_days.js non_working
 # よって init.rb 読み込み時点（コア定義済み）で直接 prepend する。
 require 'redmine/utils/date_calculation'
 require 'redmine/helpers/gantt'
+require 'redmine/helpers/calendar'
 Redmine::Utils::DateCalculation.prepend RedmineNonWorkingDays::DateCalculationPatch
 Redmine::Helpers::Gantt.prepend RedmineNonWorkingDays::GanttPatch
+Redmine::Helpers::Calendar.prepend RedmineNonWorkingDays::CalendarPatch
 # NOTE: cache_store は config/environments/production.rb で設定すること。
 # config.cache_store = :file_store, Rails.root.join('tmp', 'cache')

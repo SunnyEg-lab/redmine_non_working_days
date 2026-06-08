@@ -11,7 +11,8 @@ A Redmine plugin that manages non-working days — public holidays, custom fixed
   - Last day of the month
   - Nth weekday of the month (e.g. 2nd Friday)
   - Biweekly on a given weekday
-- **Gantt chart integration** — non-working days registered here are excluded from Gantt schedule calculations alongside Redmine's standard day-off settings
+- **Gantt chart integration** — non-working days registered here are excluded from Gantt schedule calculations (standard Gantt and Easy Gantt) alongside Redmine's standard day-off settings
+- **Issue calendar integration** — non-working days registered here are highlighted in Redmine's standard issue calendar (`/issues/calendar`) alongside Redmine's standard day-off settings
 - **Calendar view** — yearly and monthly calendar views color-coded by kind (public holiday / fixed date / recurring rule / Redmine standard day off), with a "+N" popup for days with many entries
 - **Bulk operations** — select-all checkboxes and bulk delete for each list, plus a one-click "delete all non-working day settings" option (with confirmation) that leaves Redmine's native day-off settings untouched
 - **REST API** — `GET /non_working_days/api/days.json` lets external systems query non-working days by year or date range, authenticated with Redmine's standard API key
