@@ -32,6 +32,58 @@ A Redmine plugin that manages non-working days — public holidays, custom fixed
 
 - Redmine 4.0 or higher (based on API compatibility; tested on 6.0.4)
 
+## Demo
+
+[![Demo Video](https://img.youtube.com/vi/QjWZld_j7vI/0.jpg)](https://youtu.be/QjWZld_j7vI)
+
+
+## Screenshots
+
+### Administration — Non-Working Days List
+| English | Japanese |
+|---|---|
+| ![Administration List EN](docs/screenshots/administration_list_en.png) | ![Administration List JA](docs/screenshots/administration_list_ja.png) |
+
+### Plugin Settings
+| English | Japanese |
+|---|---|
+| ![Plugin Settings EN](docs/screenshots/plugin_settings_en.png) | ![Plugin Settings JA](docs/screenshots/plugin_settings_ja.png) |
+
+### Non-Working Days — Overview
+| English | Japanese |
+|---|---|
+| ![Main Head EN](docs/screenshots/main_head_en.png) | ![Main Head JA](docs/screenshots/main_head_ja.png) |
+
+### Fetch Public Holidays
+| English | Japanese |
+|---|---|
+| ![Fetch Holidays EN](docs/screenshots/FetchHolidays_en.png) | ![Fetch Holidays JA](docs/screenshots/FetchHolidays_ja.png) |
+
+### Add Fixed Date
+| English | Japanese |
+|---|---|
+| ![Add Fixed Date EN](docs/screenshots/Add_Fixed_Date_en.png) | ![Add Fixed Date JA](docs/screenshots/Add_Fixed_Date_ja.png) |
+
+### Add Recurring Rule
+| English | Japanese |
+|---|---|
+| ![Add Recurring Rule EN](docs/screenshots/Add_Recurring_Rule_en.png) | ![Add Recurring Rule JA](docs/screenshots/Add_Recurring_Rule_ja.png) |
+
+### Non-Working Days — Full List
+| English | Japanese |
+|---|---|
+| ![Main All EN](docs/screenshots/main_all_en.png) | ![Main All JA](docs/screenshots/main_all_ja.png) |
+
+### Standard Gantt Integration
+| English | Japanese |
+|---|---|
+| ![Gantt EN](docs/screenshots/gantt_en.png) | ![Gantt JA](docs/screenshots/gantt_ja.png) |
+
+### Easy Gantt Integration
+| English | Japanese |
+|---|---|
+| ![Easy Gantt EN](docs/screenshots/easy_gantt_en.png) | ![Easy Gantt JA](docs/screenshots/easy_gantt_ja.png) |
+
 ## Installation
 
 1. Clone this repository into your Redmine `plugins` directory:
