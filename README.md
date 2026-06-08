@@ -59,8 +59,7 @@ Go to **Administration → Plugins → Redmine Non Working Days** to configure:
 - **Nager.Date API Base URL** — the base URL used to fetch public holiday data (defaults to `https://date.nager.at`)
 - **Delete All Non-Working Day Settings** — a one-click option (with confirmation) to remove all holidays, fixed dates, and recurring rules registered by this plugin; Redmine's native day-off settings (Administration → Settings → Issue tracking) are not affected
 
-> **Cache note:** This plugin uses `Rails.cache` to cache non-working day data for performance, and invalidates it whenever entries or rules are changed through the plugin's screens. With the default `:memory_store`, each application process/worker holds its own cache, so in a multi-process deployment (e.g. Passenger/Puma with multiple workers, multiple app servers) a change made on one process may not be reflected immediately on others. If you run Redmine with multiple processes, configure a shared cache store such as `:file_store` or `:mem_cache_store` (e.g. in `config/environments/production.rb`).
-
+> **Cache note:** In a multi-process environment (e.g. Passenger/Puma with multiple workers, multiple app servers), the default `:memory_store` is not shared between processes. Configure a shared cache store such as `:file_store` or `:mem_cache_store` if you run Redmine with multiple processes.
 ## REST API
 
 ```
