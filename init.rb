@@ -17,7 +17,7 @@ Redmine::Plugin.register :redmine_non_working_days do
   author_url  'https://github.com/SunnyEg-lab'
   url         'https://github.com/SunnyEg-lab/redmine_non_working_days'
   description 'Manage non-working days by public holidays, custom dates, and recurring rules'
-  version     '1.0.0'
+  version     '1.0.1'
 
   settings default: { 'nager_api_base' => 'https://date.nager.at' },
            partial: 'settings/non_working_days_settings'
