@@ -125,6 +125,19 @@ GET /non_working_days/api/days.json
 | `from` / `to` | optional | Date range (`YYYY-MM-DD`); takes precedence over `year` | `2026-04-16` / `2027-04-15` |
 | `kind` | optional | Filter by kind, comma-separated | `holiday,custom_fixed` |
 
+Each returned entry has `date`, `title`, `kind`, and `country_code`. Possible `kind` values:
+
+| Kind | Source | Notes |
+|---|---|---|
+| `holiday` | `NonWorkingDayEntry` (imported or manually added) | `country_code` set when imported from Nager.Date |
+| `custom_fixed` | `NonWorkingDayEntry` (manually added) | `country_code` always `null` |
+| `custom_recurring` | `NonWorkingDayRule` | Expanded on the fly for the requested range; `country_code` always `null` |
+| `weekday` | Redmine core's **Administration → Settings → Issue tracking → Non-working days** setting | Not managed by this plugin; `title` is the localized day name (e.g. "Saturday"), generated using the instance's default language. `country_code` always `null` |
+
+**When `kind` is omitted, all four kinds above are included**, `weekday` among them. Pass an explicit `kind` (e.g. `kind=holiday,custom_fixed,custom_recurring`) to exclude the core weekday setting from the response.
+
+If the same date matches more than one kind (e.g. a holiday that also falls on a `weekday`-designated day of week), **all matching entries are returned as separate rows** — the response is not deduplicated per date. Rows are sorted by `date`, then by kind priority (`holiday` > `custom_fixed` > `custom_recurring` > `weekday`), then alphabetically by `title`, so the ordering is deterministic across calls. Callers that want a single row per date (e.g. to store in a table keyed by date) need to pick one themselves, e.g. by taking the first row per date after this sort.
+
 Authenticate with Redmine's standard REST API key, either via the `X-Redmine-API-Key` header or a `key` query parameter. The REST API must be enabled in **Administration → Settings → API**.
 
 > **Access note:** Unlike the plugin's admin screens, this endpoint is available to **any logged-in Redmine user** (not administrators only) — anyone with a valid account and API key can query it with their own key. There is no per-project or per-role permission gate. If you need to restrict access further, consider fronting the endpoint with a reverse-proxy rule or requesting a dedicated permission in an Issue.

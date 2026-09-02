@@ -20,10 +20,13 @@ class NonWorkingDaysController < ApplicationController
                          'end_date IS NULL OR end_date >= ?', year_start
                        ).order(:title)
 
-    # 当年の全非稼働日を展開（カレンダー表示用）
+    # 当年の全非稼働日を展開（カレンダー表示用）。
+    # kindsを明示し、標準曜日休業(weekday)を含めない。曜日は@non_working_week_days
+    # 経由で別途mini_month/JSに渡しており、ここに混ぜると二重表示になるため。
     from = Date.new(@year, 1, 1)
     to   = Date.new(@year, 12, 31)
-    @expanded = RedmineNonWorkingDays::Cache.expand_for_range(from, to)
+    @expanded = RedmineNonWorkingDays::Cache.expand_for_range(
+      from, to, kinds: RedmineNonWorkingDays::Cache.entry_kinds)
     @nwd_set  = @expanded.group_by { |d| d[:date] }
 
     # Redmine標準休業日（曜日）

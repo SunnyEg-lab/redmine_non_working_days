@@ -8,7 +8,11 @@
 <%
   from  = Date.today - 1.year
   to    = Date.today + 2.years
-  dates = RedmineNonWorkingDays::Cache.expand_for_range(from, to).map { |e| e[:date].to_s }
+  # weekday(標準曜日休業)は含めない。EasyGantt側は ysy.settings.nonWorkingWeekDays を
+  # 別途参照して曜日を独自に処理しているため、ここに混ぜると holidays 配列が
+  # 数百件膨張するだけで表示結果は変わらない(dhtml_rewrite.js参照)。
+  dates = RedmineNonWorkingDays::Cache.expand_for_range(
+    from, to, kinds: RedmineNonWorkingDays::Cache.entry_kinds).map { |e| e[:date].to_s }
 %>
 <%= javascript_tag do %>
   window.ysy = window.ysy || {};
