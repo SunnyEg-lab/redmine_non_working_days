@@ -5,6 +5,7 @@ require 'ipaddr'
 class NonWorkingDaysController < ApplicationController
   before_action :require_admin, except: [:api_days]
   before_action :require_api_access, only: [:api_days]
+  accept_api_auth :api_days
 
   # GET /non_working_days?year=2026
   def index
