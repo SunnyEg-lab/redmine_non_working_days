@@ -7,7 +7,7 @@
     <p>
       <%= label_tag :year, l(:label_non_working_day_fetch_year) %>
       <%= select_tag :year,
-            options_for_select((1970..(Date.today.year + 1)).to_a.reverse, @year) %>
+            options_for_select((1976..(Date.today.year + 1)).to_a.reverse, @year) %>
     </p>
     <p>
       <%= label_tag :country_code, l(:label_non_working_day_fetch_country) %>

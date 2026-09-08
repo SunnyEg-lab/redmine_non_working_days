@@ -1,7 +1,6 @@
 <% html_title l(:label_non_working_day_add_rule) %>
 <% content_for :header_tags do %>
-  <link rel="stylesheet" href="/plugin_assets/redmine_non_working_days/stylesheets/non_working_days.css"
-        data-turbolinks-track="true">
+  <%= stylesheet_link_tag 'non_working_days', plugin: 'redmine_non_working_days' %>
 <% end %>
 <style>
   .nwd-row-hidden {

@@ -32,7 +32,7 @@ A Redmine plugin that manages non-working days — public holidays, custom fixed
 
 ## Requirements
 
-- Redmine 4.0 or higher (based on API compatibility; tested on 6.0.4)
+- Redmine 6.0 or higher (migrations target Rails 7.2, and asset delivery relies on Redmine 6's Propshaft-based plugin asset pipeline; tested on 6.0.4)
 
 ## Demo
 

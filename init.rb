@@ -19,6 +19,7 @@ Redmine::Plugin.register :redmine_non_working_days do
   url         'https://github.com/SunnyEg-lab/redmine_non_working_days'
   description 'Manage non-working days by public holidays, custom dates, and recurring rules'
   version     '1.2.0'
+  requires_redmine '6.0'
 
   settings default: { 'nager_api_base'            => 'https://date.nager.at',
                       'auto_complete_jp_holidays' => '1' },
@@ -31,8 +32,6 @@ Redmine::Plugin.register :redmine_non_working_days do
        icon:    'time',
        last:    false
 end
-
-Rails.application.config.assets.precompile += %w[non_working_days.js non_working_days.css]
 
 # プラグインローダーが init.rb を Rails.application.config.to_prepare /
 # ActiveSupport::Reloader.to_prepare のコールバックチェーン実行中に読み込むため、

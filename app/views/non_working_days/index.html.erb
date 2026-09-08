@@ -200,10 +200,8 @@
 </div><%# /nwd-list-area %>
 
 <% content_for :header_tags do %>
-  <link rel="stylesheet" href="/plugin_assets/redmine_non_working_days/stylesheets/non_working_days.css"
-        data-turbolinks-track="true">
-  <script src="/plugin_assets/redmine_non_working_days/javascripts/non_working_days.js"
-          data-turbolinks-track="true"></script>
+  <%= stylesheet_link_tag 'non_working_days', plugin: 'redmine_non_working_days' %>
+  <%= javascript_include_tag 'non_working_days', plugin: 'redmine_non_working_days' %>
 <% end %>
 
 <style>
