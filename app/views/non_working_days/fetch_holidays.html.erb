@@ -25,7 +25,9 @@
   <p class="warning">
     <%= l(:warning_non_working_day_holidays_overwrite_generic) %><br>
     <%= l(:hint_non_working_day_fetch_fallback_html,
-          link: link_to(l(:label_non_working_day_add_entry), new_non_working_day_entry_path)).html_safe %>
+          link: link_to(l(:label_non_working_day_add_entry), new_non_working_day_entry_path)).html_safe %><br>
+    <%= l(:hint_non_working_day_jp_auto_complete) %><br>
+    <%= l(:hint_non_working_day_other_country_notice) %>
   </p>
 
   <%= submit_tag l(:button_non_working_day_fetch), class: 'button-positive' %>

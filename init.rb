@@ -10,6 +10,7 @@ require_relative 'lib/redmine_non_working_days/date_calculation_patch'
 require_relative 'lib/redmine_non_working_days/gantt_helper'
 require_relative 'lib/redmine_non_working_days/gantt_patch'
 require_relative 'lib/redmine_non_working_days/hooks'
+require_relative 'lib/redmine_non_working_days/japanese_holidays'
 
 Redmine::Plugin.register :redmine_non_working_days do
   name        'Redmine Non Working Days'
@@ -17,9 +18,10 @@ Redmine::Plugin.register :redmine_non_working_days do
   author_url  'https://github.com/SunnyEg-lab'
   url         'https://github.com/SunnyEg-lab/redmine_non_working_days'
   description 'Manage non-working days by public holidays, custom dates, and recurring rules'
-  version     '1.1.0'
+  version     '1.2.0'
 
-  settings default: { 'nager_api_base' => 'https://date.nager.at' },
+  settings default: { 'nager_api_base'            => 'https://date.nager.at',
+                      'auto_complete_jp_holidays' => '1' },
            partial: 'settings/non_working_days_settings'
 
   menu :admin_menu,

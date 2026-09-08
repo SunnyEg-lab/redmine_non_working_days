@@ -38,6 +38,9 @@ ja:
   label_non_working_day_this_year: "今年"
   label_non_working_day_this_month: "今月"
   label_non_working_day_legend: "凡例"
+  label_non_working_day_substitute_holiday: "振替休日"
+  label_non_working_day_citizens_holiday: "国民の休日"
+  label_non_working_day_auto_complete_jp: "振替休日・国民の休日の自動補完"
 
   label_rule_type_monthly_day: "毎月指定日"
   label_rule_type_monthly_last: "毎月末日"
@@ -73,6 +76,9 @@ ja:
 
   warning_non_working_day_holidays_overwrite: "%{year}年 %{country} の祝日データが既に登録されています。上書きしますか？"
   hint_non_working_day_fetch_fallback_html: "取得できない場合は %{link} から手動登録できます。"
+  hint_non_working_day_jp_auto_complete: "振替休日・国民の休日の自動補完は日本（JP）選択時のみ動作します。"
+  hint_non_working_day_other_country_notice: "JP以外の国では、振替休日・代替休日が取得結果に含まれない場合があります。カレンダーと突合し、不足があれば「個別設定を追加」から登録してください。"
+  text_non_working_day_auto_complete_jp_hint: "※日本（JP）の祝日取得時のみ動作します。祝日法に基づき、振替休日・国民の休日を自動登録します。"
   warning_non_working_day_holidays_overwrite_generic: "指定した年の祝日データが既に登録されている場合、全件削除して置き換えます。"
 
   label_non_working_day_list_title: "%{year}年の非稼働日一覧"

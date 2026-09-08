@@ -155,30 +155,35 @@ class NonWorkingDaysController < ApplicationController
       return redirect_to fetch_non_working_day_holidays_path(year: year)
     end
 
+    # Nager.Date API は州・地域ごとの祝日を別レコードとして返すため、
+    # 同一日付・同一名称のものが重複して含まれる（例: 米国の Good Friday）。
+    # 非稼働日カレンダーとしては日付＋名称が同じなら1件で十分なため重複排除する。
+    entries = holidays
+      .map { |h| { date: Date.parse(h['date']), title: h['localName'].presence || h['name'] } }
+      .uniq { |h| [h[:date], h[:title]] }
+
+    # 日本のみ: APIが返さない振替休日・国民の休日を補完し、
+    # APIが振替日へ移動して返した祝日を法定日へ戻す。
+    entries = RedmineNonWorkingDays::JapaneseHolidays.complete(entries, year) if complete_jp_holidays?(country_code)
+
     NonWorkingDayEntry.transaction do
       # 指定年の holiday を国コードに関わらず全削除して置き換え
       NonWorkingDayEntry.holidays
         .where('EXTRACT(YEAR FROM date) = ?', year)
         .delete_all
 
-      # Nager.Date API は州・地域ごとの祝日を別レコードとして返すため、
-      # 同一日付・同一名称のものが重複して含まれる（例: 米国の Good Friday）。
-      # 非稼働日カレンダーとしては日付＋名称が同じなら1件で十分なため重複排除する。
-      holidays
-        .map { |h| { date: Date.parse(h['date']), title: h['localName'].presence || h['name'] } }
-        .uniq { |h| [h[:date], h[:title]] }
-        .each do |h|
-          NonWorkingDayEntry.create!(
-            date:         h[:date],
-            title:        h[:title],
-            kind:         'holiday',
-            country_code: country_code
-          )
-        end
+      entries.each do |h|
+        NonWorkingDayEntry.create!(
+          date:         h[:date],
+          title:        h[:title],
+          kind:         'holiday',
+          country_code: country_code
+        )
+      end
     end
 
     RedmineNonWorkingDays::Cache.invalidate!
-    flash[:notice] = l(:notice_non_working_day_holidays_imported, count: holidays.size, year: year, country: country_code)
+    flash[:notice] = l(:notice_non_working_day_holidays_imported, count: entries.size, year: year, country: country_code)
     redirect_to non_working_days_path(year: year)
   end
 
@@ -231,6 +236,14 @@ class NonWorkingDaysController < ApplicationController
     PRIVATE_IP_RANGES.any? { |range| range.include?(addr) }
   rescue IPAddr::Error
     false # ホスト名（IPアドレスでない）の場合はここでは判定しない
+  end
+
+  # 振替休日・国民の休日の自動補完を行うか。日本以外では制度が異なるため適用しない。
+  # 設定が未保存の既存インストールでは既定でON（nil.to_s != '0'）。
+  def complete_jp_holidays?(country_code)
+    return false unless RedmineNonWorkingDays::JapaneseHolidays.applicable?(country_code)
+
+    Setting.plugin_redmine_non_working_days['auto_complete_jp_holidays'].to_s != '0'
   end
 
   def bulk_ids

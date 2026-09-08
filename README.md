@@ -5,6 +5,7 @@ A Redmine plugin that manages non-working days — public holidays, custom fixed
 ## Features
 
 - **Public holiday import** — fetch public holidays per country/year via the [Nager.Date](https://date.nager.at/) API and register them with one click
+- **Japanese substitute holidays** — when importing holidays for Japan, substitute holidays (振替休日) and citizens' holidays (国民の休日) are completed automatically, and holidays the API shifted to their observed date are restored to their statutory date ([details](#japanese-holidays-jp-only))
 - **Custom fixed dates** — register one-off non-working days (e.g. summer/winter company holidays)
 - **Recurring rules** — define repeating non-working days using one of four patterns, each with an optional valid date range:
   - Specific day(s) of the month (e.g. the 15th and the last day)
@@ -110,9 +111,46 @@ This plugin adds an entry under the **Administration** menu. Viewing and editing
 Go to **Administration → Plugins → Redmine Non Working Days** to configure:
 
 - **Nager.Date API Base URL** — the base URL used to fetch public holiday data (defaults to `https://date.nager.at`)
+- **Auto-complete Japanese substitute holidays** — when importing holidays for Japan (JP), restore statutory dates and register substitute/citizens' holidays automatically (enabled by default; see [Japanese Holidays (JP only)](#japanese-holidays-jp-only))
 - **Delete All Non-Working Day Settings** — a one-click option (with confirmation) to remove all holidays, fixed dates, and recurring rules registered by this plugin; Redmine's native day-off settings (Administration → Settings → Issue tracking) are not affected
 
 > **Cache note:** In a multi-process environment (e.g. Passenger/Puma with multiple workers, multiple app servers), the default `:memory_store` is not shared between processes. Configure a shared cache store such as `:file_store` or `:mem_cache_store` if you run Redmine with multiple processes.
+
+## Japanese Holidays (JP only)
+
+Japan's Act on National Holidays grants two kinds of days off that are not national holidays themselves:
+
+- **Substitute holiday (振替休日)** — when a national holiday falls on a Sunday, the nearest following day that is not a national holiday becomes a day off (Article 3(2))
+- **Citizens' holiday (国民の休日)** — a day sandwiched between two national holidays becomes a day off, unless it is a Sunday or already a substitute holiday (Article 3(3))
+
+The Nager.Date API returns neither of them for Japan. Instead it shifts a Sunday holiday to its observed date and returns a single entry, which drops the statutory date:
+
+| Year | Nager.Date returns | Correct under Japanese law |
+|---|---|---|
+| 2024 | nothing on `09-23` | `09-22` Autumnal Equinox Day (Sun) + `09-23` substitute holiday |
+| 2025 | `02-24` "天皇誕生日" | `02-23` The Emperor's Birthday + `02-24` substitute holiday |
+| 2026 | `05-06` "憲法記念日" | `05-03` Constitution Memorial Day + `05-06` substitute holiday |
+| 2026 | nothing on `09-22` | `09-22` citizens' holiday |
+
+That "shift and return one entry" model is correct for countries where only the observed day is a statutory day off (the UK and the US, for example), but not for Japan, where the statutory date stays a holiday and the substitute day is added on top of it.
+
+When **JP** is selected, this plugin post-processes the fetched data in two steps:
+
+1. **Restore statutory dates** — holidays the API shifted to their observed date are moved back. To avoid corrupting correct data this is applied only when the holiday's name matches a known fixed-date holiday, the statutory date falls on a Sunday, and the API returned a later date. Anything else is left untouched, so an unrecognised name simply falls back to the API's own result.
+2. **Derive days off** — substitute holidays and citizens' holidays are computed per Article 3(2) and 3(3), and registered alongside the fetched holidays.
+
+Generated entries use `kind: holiday`, the same as fetched holidays, and are titled using the instance's default language (振替休日 / Substitute Holiday, 国民の休日 / Citizens' Holiday). Because an import replaces every holiday of the target year, re-importing is idempotent — generated entries are refreshed as well, never duplicated.
+
+Set this behaviour on or off in the plugin settings (see [Settings](#settings)).
+
+> **Note:** This correction assumes the fetched holiday data is itself correct for the requested year. Nager.Date's JP data has been checked against Japan's official holiday calendar for 2016 through 2027 (Japan's Cabinet Office does not publish official holiday data further ahead than this — 2028's holidays, for example, are only published in February 2027), except for the 2019 accession holidays and the 2020/2021 Olympic date shifts, which it does not reflect. (Separately, the Sunday-holiday shift this correction depends on has been spot-checked through 2035 with no issues found, but full-year accuracy beyond 2027 has not been verified against an official source.) For years before 2016, the API retroactively applies rules that didn't exist yet (e.g. returning "Happy Monday" dates, or Mountain Day, before those rules/holidays existed), which can make this plugin derive a citizens' holiday that never legally existed. If you import an older year or a year with a known exception, verify the result against an authoritative calendar.
+
+### Other countries
+
+For any country other than JP, imported data is registered exactly as the API returns it. No correction or completion is applied, even when the setting above is enabled.
+
+Substitute-holiday rules differ from country to country: some substitute only for Sunday, others for Saturday as well; some move the day off backwards to the preceding Friday; some grant both the statutory date and the substitute. Handling each correctly requires that country's law, so this plugin does not attempt it. Verify the imported result against a local calendar and add any missing days as fixed dates.
+
 ## REST API
 
 ```

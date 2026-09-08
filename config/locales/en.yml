@@ -38,6 +38,9 @@ en:
   label_non_working_day_this_year: "This Year"
   label_non_working_day_this_month: "This Month"
   label_non_working_day_legend: "Legend"
+  label_non_working_day_substitute_holiday: "Substitute Holiday"
+  label_non_working_day_citizens_holiday: "Citizens' Holiday"
+  label_non_working_day_auto_complete_jp: "Auto-complete Japanese substitute holidays"
 
   label_rule_type_monthly_day: "Monthly on specified day(s)"
   label_rule_type_monthly_last: "Last day of month"
@@ -73,6 +76,9 @@ en:
 
   warning_non_working_day_holidays_overwrite: "Holiday data for %{year} (%{country}) already exists and will be replaced. Continue?"
   hint_non_working_day_fetch_fallback_html: "If fetch fails, you can manually register from %{link}."
+  hint_non_working_day_jp_auto_complete: "Substitute holidays and citizens' holidays are auto-completed for Japan (JP) only."
+  hint_non_working_day_other_country_notice: "For other countries, substitute or observed holidays may be missing from the imported data. Please verify against a local calendar and add any missing days from \"Add Fixed Date\"."
+  text_non_working_day_auto_complete_jp_hint: "* Applies only when fetching holidays for Japan (JP). Substitute holidays and citizens' holidays are registered automatically based on the Act on National Holidays."
   warning_non_working_day_holidays_overwrite_generic: "If holiday data already exists for the selected year, it will be deleted and replaced."
 
   label_non_working_day_list_title: "Non-Working Days in %{year}"

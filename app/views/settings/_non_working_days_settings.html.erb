@@ -5,6 +5,14 @@
         size: 60 %>
 </p>
 
+<p>
+  <label><%= l(:label_non_working_day_auto_complete_jp) %></label>
+  <%= hidden_field_tag 'settings[auto_complete_jp_holidays]', '0', id: nil %>
+  <%= check_box_tag 'settings[auto_complete_jp_holidays]', '1',
+        settings['auto_complete_jp_holidays'].to_s != '0' %>
+</p>
+<p class="nwd-settings-hint"><%= l(:text_non_working_day_auto_complete_jp_hint) %></p>
+
 <fieldset class="box">
   <legend><%= l(:button_non_working_day_delete_all) %></legend>
   <p>
